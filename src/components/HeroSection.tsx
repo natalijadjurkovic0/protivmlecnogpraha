@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import heroCow from "@/assets/hero-cow.jpg";
-import { CrownDoodle, HeartDoodle, CloudDoodle, StarDoodle } from "./DoodleOverlays";
+import { CrownDoodle, CloudDoodle, StarDoodle } from "./DoodleOverlays";
 
 const HeroSection = () => {
   return (
@@ -9,66 +9,78 @@ const HeroSection = () => {
       <div className="absolute inset-0">
         <img
           src={heroCow}
-          alt="Krava u kutiji na srpskom selu"
+          alt="Krava na srpskom selu"
           className="w-full h-full object-cover"
           width={1920}
           height={1080}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground/30 via-foreground/20 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-transparent to-foreground/60" />
       </div>
 
-      {/* Floating doodles */}
-      <CrownDoodle className="absolute top-[18%] left-[42%] md:left-[46%] z-20" />
-      <HeartDoodle className="absolute top-[30%] right-[15%] z-20" />
-      <HeartDoodle className="absolute top-[35%] right-[22%] z-20 scale-75 opacity-70" />
-      <CloudDoodle className="absolute top-[10%] right-[10%] z-20 opacity-60" />
-      <CloudDoodle className="absolute top-[8%] left-[5%] z-20 opacity-40 scale-75" />
-      <StarDoodle className="absolute top-[25%] left-[10%] z-20" />
-      <StarDoodle className="absolute top-[15%] right-[30%] z-20 scale-50 opacity-60" />
+      {/* Floating doodles — matching screenshot positions */}
+      <CrownDoodle className="absolute top-[16%] left-[12%] md:left-[16%] z-20 scale-75 md:scale-100" />
+      <StarDoodle className="absolute top-[12%] right-[28%] z-20" />
+      <StarDoodle className="absolute top-[40%] left-[5%] z-20 scale-125" />
+      <CloudDoodle className="absolute top-[14%] right-[8%] z-20 opacity-80" />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 mt-20">
+      <div className="relative z-10 text-center px-6 mt-10">
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="font-handwritten text-xl md:text-2xl text-primary mb-2"
+        >
+          ~ od srca do praga ~
+        </motion.p>
+
+        {/* Main title */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black text-warm-white leading-tight mb-4">
+          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-black text-warm-white leading-none mb-2">
             Mlečni{" "}
-            <span className="font-handwritten text-primary text-6xl md:text-8xl lg:text-9xl">
+            <span className="font-handwritten text-primary italic text-7xl md:text-9xl lg:text-[10rem]">
               put
             </span>
           </h1>
         </motion.div>
 
-        <motion.p
+        {/* Slogan with marker highlight */}
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="font-handwritten text-2xl md:text-4xl text-primary mt-4 max-w-2xl mx-auto"
+          className="mt-4 max-w-xl mx-auto"
         >
-          "Uz pravo mleko nema straha,
-          <br />
-          bežimo od mlečnog praha"
-        </motion.p>
+          <p className="font-handwritten text-xl md:text-3xl text-primary leading-relaxed">
+            <span className="marker-underline">"Uz pravo mleko nema straha,</span>
+            <br />
+            <span className="marker-underline">bežimo od mlečnog praha."</span>
+          </p>
+        </motion.div>
 
+        {/* CTA Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
+          className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
           <a
-            href="#story"
-            className="px-8 py-4 bg-primary text-primary-foreground font-body font-bold text-lg rounded-full hover:scale-105 transition-transform shadow-lg"
+            href="/partner"
+            className="px-10 py-4 bg-primary text-primary-foreground font-body font-bold text-lg rounded-sm hover:scale-105 transition-transform shadow-lg inline-flex items-center gap-2"
           >
-            Saznaj više
+            Postani Partner <span className="text-xl">🐄</span>
           </a>
           <a
-            href="/partner"
-            className="px-8 py-4 border-2 border-warm-white text-warm-white font-body font-bold text-lg rounded-full hover:bg-warm-white hover:text-foreground transition-all"
+            href="#story"
+            className="px-10 py-4 border-2 border-foreground text-warm-white font-body font-bold text-lg rounded-sm hover:bg-warm-white hover:text-foreground transition-all inline-flex items-center gap-2"
           >
-            Postani partner
+            Istraži Priču <span className="text-sm">↓</span>
           </a>
         </motion.div>
       </div>
