@@ -14,16 +14,185 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      add_ons: {
+        Row: {
+          created_at: string
+          icon_name: string | null
+          id: string
+          price_rsd: number
+          product_name: string
+        }
+        Insert: {
+          created_at?: string
+          icon_name?: string | null
+          id?: string
+          price_rsd: number
+          product_name: string
+        }
+        Update: {
+          created_at?: string
+          icon_name?: string | null
+          id?: string
+          price_rsd?: number
+          product_name?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          add_on_ids: string[] | null
+          created_at: string
+          delivery_date: string
+          id: string
+          items: Json
+          status: string
+          subscription_id: string | null
+          total_rsd: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          add_on_ids?: string[] | null
+          created_at?: string
+          delivery_date: string
+          id?: string
+          items?: Json
+          status?: string
+          subscription_id?: string | null
+          total_rsd?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          add_on_ids?: string[] | null
+          created_at?: string
+          delivery_date?: string
+          id?: string
+          items?: Json
+          status?: string
+          subscription_id?: string | null
+          total_rsd?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          delivery_days: string[]
+          id: string
+          plan_type: Database["public"]["Enums"]["plan_type"]
+          price_rsd: number
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+          weekly_liters: number
+        }
+        Insert: {
+          created_at?: string
+          delivery_days: string[]
+          id?: string
+          plan_type: Database["public"]["Enums"]["plan_type"]
+          price_rsd: number
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+          weekly_liters: number
+        }
+        Update: {
+          created_at?: string
+          delivery_days?: string[]
+          id?: string
+          plan_type?: Database["public"]["Enums"]["plan_type"]
+          price_rsd?: number
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+          weekly_liters?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "kupac" | "mlekar" | "vozac" | "dispecer"
+      plan_type:
+        | "mali_potrosac"
+        | "porodicni_standard"
+        | "zdravo_detinjstvo"
+        | "probaj"
+      subscription_status: "active" | "paused" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +319,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["kupac", "mlekar", "vozac", "dispecer"],
+      plan_type: [
+        "mali_potrosac",
+        "porodicni_standard",
+        "zdravo_detinjstvo",
+        "probaj",
+      ],
+      subscription_status: ["active", "paused", "cancelled"],
+    },
   },
 } as const
