@@ -53,7 +53,7 @@ const Navbar = () => {
           {user ? (
             <div className="flex items-center gap-3 ml-2">
               <Link
-                to="/dashboard"
+                to={dashboardPath}
                 className="px-4 py-2 bg-primary text-primary-foreground font-body font-semibold text-sm rounded-lg hover:scale-105 transition-transform"
               >
                 Dashboard
