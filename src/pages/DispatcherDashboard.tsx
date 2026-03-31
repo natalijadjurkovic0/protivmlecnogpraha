@@ -136,16 +136,41 @@ const DispatcherDashboard = () => {
   };
 
   const handleApprove = async (appId: string) => {
+    const app = applications.find((a) => a.id === appId);
+    
+    // Update application status
     const { error } = await supabase
       .from("partner_applications")
       .update({ status: "approved" })
       .eq("id", appId);
     if (error) {
       toast({ title: "Greška", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Odobreno! 👑", description: "Farmer je sada odobren." });
-      setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "approved" } : a)));
+      return;
     }
+
+    // If applicant has a user_id, update their role to mlekar
+    if (app?.user_id) {
+      // Check if they already have a role entry
+      const { data: existingRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", app.user_id)
+        .maybeSingle();
+
+      if (existingRole) {
+        await supabase
+          .from("user_roles")
+          .update({ role: "mlekar" as any })
+          .eq("user_id", app.user_id);
+      } else {
+        await supabase
+          .from("user_roles")
+          .insert({ user_id: app.user_id, role: "mlekar" as any });
+      }
+    }
+
+    toast({ title: "Odobreno! 👑", description: "Farmer je sada mlekar. Mission Accepted! ⭐" });
+    setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "approved" } : a)));
   };
 
   const handleReject = async (appId: string) => {
