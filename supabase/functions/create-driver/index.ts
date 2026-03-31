@@ -39,12 +39,18 @@ Deno.serve(async (req) => {
     });
     if (createError) throw createError;
 
-    // Set role to vozac
+    // Set role to vozac (trigger creates 'kupac' by default, so update it)
     const { error: roleError } = await supabaseAdmin
       .from("user_roles")
       .update({ role: "vozac" })
       .eq("user_id", newUser.user.id);
     if (roleError) throw roleError;
+
+    // Update profile display_name (trigger may have set email as default)
+    await supabaseAdmin
+      .from("profiles")
+      .update({ display_name: displayName })
+      .eq("user_id", newUser.user.id);
 
     return new Response(JSON.stringify({ success: true, userId: newUser.user.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
