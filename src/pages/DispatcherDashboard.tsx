@@ -50,32 +50,88 @@ const DispatcherDashboard = () => {
   useEffect(() => {
     if (!user) return;
     fetchAll();
+
+    // Realtime subscription for driver updates
+    const channel = supabase
+      .channel('dispatcher-drivers')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_roles' }, () => {
+        console.log('[Dispatcher] user_roles changed, refetching drivers...');
+        fetchDrivers();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        console.log('[Dispatcher] profiles changed, refetching drivers...');
+        fetchDrivers();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_schedules' }, () => {
+        console.log('[Dispatcher] driver_schedules changed, refetching...');
+        fetchSchedules();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
+
+  const fetchDrivers = async () => {
+    // Step 1: Get all user_ids with role 'vozac'
+    const { data: roleData, error: roleError } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "vozac");
+
+    if (roleError) {
+      console.error('[Dispatcher] Error fetching vozac roles:', roleError);
+      return;
+    }
+
+    if (!roleData || roleData.length === 0) {
+      console.log('[Dispatcher] No drivers found in user_roles');
+      setDrivers([]);
+      return;
+    }
+
+    const driverUserIds = roleData.map((r: any) => r.user_id);
+
+    // Step 2: Get profiles for those user_ids
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .in("user_id", driverUserIds);
+
+    if (profileError) {
+      console.error('[Dispatcher] Error fetching driver profiles:', profileError);
+      toast({ title: "Greška pri učitavanju vozača iz baze", variant: "destructive" });
+      return;
+    }
+
+    console.log('[Dispatcher] Fetched drivers:', profileData);
+    const driversList = (profileData || []).map((p: any) => ({
+      userId: p.user_id,
+      displayName: p.display_name || "Nepoznato",
+      email: p.phone || p.display_name || "—",
+      ...p,
+    }));
+    setDrivers(driversList);
+  };
+
+  const fetchSchedules = async () => {
+    const { data } = await supabase.from("driver_schedules").select("*");
+    if (data) setSchedules(data);
+  };
 
   const fetchAll = async () => {
     setLoading(true);
-    const [appsRes, rolesRes, subsRes, schedulesRes] = await Promise.all([
+    const [appsRes, , subsRes] = await Promise.all([
       supabase.from("partner_applications").select("*").order("created_at", { ascending: false }),
-      supabase.from("user_roles").select("*, profiles(*)").eq("role", "vozac"),
+      fetchDrivers(),
       supabase.from("subscriptions").select("*").eq("status", "active"),
-      supabase.from("driver_schedules").select("*"),
     ]);
+    await fetchSchedules();
 
     if (appsRes.data) setApplications(appsRes.data);
-    if (rolesRes.data) {
-      const driversList = rolesRes.data.map((r: any) => ({
-        userId: r.user_id,
-        displayName: r.profiles?.display_name || "Nepoznato",
-        email: r.profiles?.phone || "",
-        ...r.profiles,
-      }));
-      setDrivers(driversList);
-    }
     if (subsRes.data) {
       setSubscriptionCount(subsRes.data.length);
       setTotalMilk(subsRes.data.reduce((sum: number, s: any) => sum + Number(s.weekly_liters), 0));
     }
-    if (schedulesRes.data) setSchedules(schedulesRes.data);
     setLoading(false);
   };
 
