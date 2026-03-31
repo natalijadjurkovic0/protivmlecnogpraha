@@ -10,6 +10,8 @@ import Proizvodi from "./pages/Proizvodi.tsx";
 import Farmeri from "./pages/Farmeri.tsx";
 import Auth from "./pages/Auth.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import DispatcherDashboard from "./pages/DispatcherDashboard.tsx";
+import DriverDashboard from "./pages/DriverDashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
             <Route path="/farmeri" element={<Farmeri />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/dispecer" element={<DispatcherDashboard />} />
+            <Route path="/dashboard/vozac" element={<DriverDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
