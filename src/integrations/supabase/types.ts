@@ -38,6 +38,33 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_schedules: {
+        Row: {
+          assigned_by: string
+          created_at: string
+          day_of_week: string
+          driver_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by: string
+          created_at?: string
+          day_of_week: string
+          driver_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string
+          created_at?: string
+          day_of_week?: string
+          driver_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           add_on_ids: string[] | null
