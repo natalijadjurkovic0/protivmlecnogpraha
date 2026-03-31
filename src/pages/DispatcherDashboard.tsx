@@ -395,7 +395,16 @@ const DispatcherDashboard = () => {
           <TabsContent value="driver-list">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {drivers.length === 0 ? (
-                <p className="font-body text-muted-foreground col-span-full text-center py-12">Nema registrovanih vozača.</p>
+                <div className="col-span-full flex flex-col items-center justify-center py-16">
+                  <svg width="60" height="80" viewBox="0 0 60 80" fill="none" className="mb-4 opacity-60">
+                    <path d="M30 10 C30 10 25 30 30 50 C35 70 30 75 30 75" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="4 4" fill="none"/>
+                    <path d="M20 15 L30 5 L28 18" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  </svg>
+                  <p className="font-handwritten text-xl text-primary mb-2">Nema vozača... još!</p>
+                  <p className="font-body text-sm text-muted-foreground text-center max-w-sm">
+                    Trenutno nema registrovanih vozača. Dodaj prvog člana tima iznad!
+                  </p>
+                </div>
               ) : (
                 drivers.map((driver, i) => (
                   <motion.div
