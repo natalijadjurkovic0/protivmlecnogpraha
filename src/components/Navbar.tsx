@@ -1,13 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [dashboardPath, setDashboardPath] = useState("/dashboard");
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.role === "dispecer") setDashboardPath("/dashboard/dispecer");
+        else if (data?.role === "vozac") setDashboardPath("/dashboard/vozac");
+        else setDashboardPath("/dashboard");
+      });
+  }, [user]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-foreground/80 backdrop-blur-md">
