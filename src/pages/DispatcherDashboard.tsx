@@ -326,6 +326,7 @@ const DispatcherDashboard = () => {
                     </div>
                     <h3 className="font-display text-lg font-bold text-foreground">{app.full_name}</h3>
                     <div className="mt-3 space-y-1 font-body text-sm text-muted-foreground">
+                      {app.email && <p><span className="font-semibold text-foreground">Email:</span> {app.email}</p>}
                       <p><span className="font-semibold text-foreground">BPG:</span> {app.bpg}</p>
                       <p><span className="font-semibold text-foreground">JMBG:</span> {app.jmbg}</p>
                       <p><span className="font-semibold text-foreground">Adresa:</span> {app.address}</p>

@@ -10,6 +10,7 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [dashboardPath, setDashboardPath] = useState("/dashboard");
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -19,8 +20,11 @@ const Navbar = () => {
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        if (data?.role === "dispecer") setDashboardPath("/dashboard/dispecer");
-        else if (data?.role === "vozac") setDashboardPath("/dashboard/vozac");
+        const role = data?.role;
+        setUserRole(role || null);
+        if (role === "dispecer") setDashboardPath("/dashboard/dispecer");
+        else if (role === "vozac") setDashboardPath("/dashboard/vozac");
+        else if (role === "mlekar") setDashboardPath("/dashboard/mlekar");
         else setDashboardPath("/dashboard");
       });
   }, [user]);
