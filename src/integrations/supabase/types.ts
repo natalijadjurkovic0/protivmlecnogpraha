@@ -118,33 +118,39 @@ export type Database = {
           bpg: string
           capacity_liters_per_day: number
           created_at: string
+          email: string | null
           full_name: string
           id: string
           jmbg: string
           status: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address: string
           bpg: string
           capacity_liters_per_day: number
           created_at?: string
+          email?: string | null
           full_name: string
           id?: string
           jmbg: string
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string
           bpg?: string
           capacity_liters_per_day?: number
           created_at?: string
+          email?: string | null
           full_name?: string
           id?: string
           jmbg?: string
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
