@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -47,6 +47,7 @@
     --font-display: 'Playfair Display', Georgia, serif;
     --font-handwritten: 'Caveat', cursive;
     --font-body: 'Inter', system-ui, sans-serif;
+    --font-data: 'Space Grotesk', system-ui, sans-serif;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -86,6 +87,10 @@
 
   .font-body {
     font-family: var(--font-body);
+  }
+
+  .font-data {
+    font-family: var(--font-data);
   }
 
   .text-ink {

@@ -18,8 +18,32 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) navigate("/dashboard");
-  }, [user, navigate]);
+    if (user) {
+      redirectByRole();
+    }
+  }, [user]);
+
+  const redirectByRole = async () => {
+    if (!user) return;
+
+    // Call edge function to check/assign role (handles dispecer auto-assign)
+    try {
+      const { data } = await supabase.functions.invoke("assign-dispecer");
+      const role = data?.role;
+
+      if (role === "dispecer") {
+        navigate("/dashboard/dispecer");
+      } else if (role === "vozac") {
+        navigate("/dashboard/vozac");
+      } else if (role === "mlekar") {
+        navigate("/dashboard/mlekar");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch {
+      navigate("/dashboard");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
