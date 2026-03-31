@@ -1,16 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  const [isLogin, setIsLogin] = useState(searchParams.get("mode") !== "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) navigate("/dashboard");
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +30,7 @@ const Auth = () => {
       if (error) {
         toast({ title: "Greška", description: error.message, variant: "destructive" });
       }
+      // redirect handled by useEffect above
     } else {
       const { error } = await supabase.auth.signUp({
         email,
@@ -33,7 +43,7 @@ const Auth = () => {
       if (error) {
         toast({ title: "Greška", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "Uspeh!", description: "Proverite email za potvrdu." });
+        toast({ title: "Uspeh!", description: "Proverite email za potvrdu naloga." });
       }
     }
     setLoading(false);
