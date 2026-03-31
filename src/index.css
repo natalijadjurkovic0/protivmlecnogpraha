@@ -47,6 +47,7 @@
     --font-display: 'Playfair Display', Georgia, serif;
     --font-handwritten: 'Caveat', cursive;
     --font-body: 'Inter', system-ui, sans-serif;
+    --font-data: 'Space Grotesk', system-ui, sans-serif;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
