@@ -106,7 +106,7 @@ const Navbar = () => {
               <Link to="/partner" onClick={() => setIsOpen(false)} className="font-body text-warm-white text-sm">Postani Partner</Link>
               {user ? (
                 <>
-                  <Link to="/dashboard" onClick={() => setIsOpen(false)} className="px-5 py-2.5 bg-primary text-primary-foreground font-body font-semibold text-sm text-center rounded-lg">Dashboard</Link>
+                  <Link to={dashboardPath} onClick={() => setIsOpen(false)} className="px-5 py-2.5 bg-primary text-primary-foreground font-body font-semibold text-sm text-center rounded-lg">Dashboard</Link>
                   <button onClick={() => { signOut(); setIsOpen(false); }} className="px-5 py-2.5 border border-warm-white/30 text-warm-white font-body text-sm text-center rounded-lg">Odjavi se</button>
                 </>
               ) : (
