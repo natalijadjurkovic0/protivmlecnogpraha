@@ -85,6 +85,42 @@ export type Database = {
           },
         ]
       }
+      partner_applications: {
+        Row: {
+          address: string
+          bpg: string
+          capacity_liters_per_day: number
+          created_at: string
+          full_name: string
+          id: string
+          jmbg: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          bpg: string
+          capacity_liters_per_day: number
+          created_at?: string
+          full_name: string
+          id?: string
+          jmbg: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          bpg?: string
+          capacity_liters_per_day?: number
+          created_at?: string
+          full_name?: string
+          id?: string
+          jmbg?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null

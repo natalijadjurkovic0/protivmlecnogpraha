@@ -1,35 +1,70 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-      <div className="container mx-auto px-6 py-5 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-foreground/80 backdrop-blur-md">
+      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-1">
           <span className="font-display text-xl font-bold text-warm-white">Mlečni</span>
           <span className="font-handwritten text-2xl text-primary italic">put</span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#story" className="font-body text-sm font-medium text-warm-white/80 hover:text-warm-white transition-colors">
-            Priča
-          </a>
-          <a href="#products" className="font-body text-sm font-medium text-warm-white/80 hover:text-warm-white transition-colors">
+        <div className="hidden md:flex items-center gap-6">
+          <Link to="/" className="font-body text-sm font-medium text-warm-white/80 hover:text-warm-white transition-colors">
+            Početna
+          </Link>
+          <Link to="/proizvodi" className="font-body text-sm font-medium text-warm-white/80 hover:text-warm-white transition-colors">
             Proizvodi
-          </a>
-          <a href="#farmers" className="font-body text-sm font-medium text-warm-white/80 hover:text-warm-white transition-colors">
+          </Link>
+          <Link to="/farmeri" className="font-body text-sm font-medium text-warm-white/80 hover:text-warm-white transition-colors">
             Farmeri
-          </a>
+          </Link>
           <Link
             to="/partner"
-            className="px-5 py-2 border-2 border-warm-white text-warm-white font-body font-semibold text-sm hover:bg-warm-white hover:text-foreground transition-all"
+            className="font-body text-sm font-medium text-warm-white/80 hover:text-warm-white transition-colors"
           >
             Postani Partner
           </Link>
+
+          {user ? (
+            <div className="flex items-center gap-3 ml-2">
+              <Link
+                to="/dashboard"
+                className="px-4 py-2 bg-primary text-primary-foreground font-body font-semibold text-sm rounded-lg hover:scale-105 transition-transform"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={signOut}
+                className="px-4 py-2 border border-warm-white/30 text-warm-white/70 font-body text-sm rounded-lg hover:bg-warm-white/10 transition-colors"
+              >
+                Odjavi se
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 ml-2">
+              <Link
+                to="/auth"
+                className="px-4 py-2 border border-warm-white/40 text-warm-white font-body font-semibold text-sm rounded-lg hover:bg-warm-white/10 transition-colors"
+              >
+                Prijavi se
+              </Link>
+              <Link
+                to="/auth?mode=signup"
+                className="px-4 py-2 bg-primary text-primary-foreground font-body font-semibold text-sm rounded-lg hover:scale-105 transition-transform"
+              >
+                Registruj se
+              </Link>
+            </div>
+          )}
         </div>
 
         <button
@@ -46,19 +81,24 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden overflow-hidden bg-foreground/90 backdrop-blur-md"
+            className="md:hidden overflow-hidden bg-foreground/95 backdrop-blur-md"
           >
             <div className="px-6 py-4 flex flex-col gap-4">
-              <a href="#story" onClick={() => setIsOpen(false)} className="font-body text-warm-white">Priča</a>
-              <a href="#products" onClick={() => setIsOpen(false)} className="font-body text-warm-white">Proizvodi</a>
-              <a href="#farmers" onClick={() => setIsOpen(false)} className="font-body text-warm-white">Farmeri</a>
-              <Link
-                to="/partner"
-                onClick={() => setIsOpen(false)}
-                className="px-5 py-2.5 border-2 border-warm-white text-warm-white font-body font-semibold text-sm text-center"
-              >
-                Postani Partner
-              </Link>
+              <Link to="/" onClick={() => setIsOpen(false)} className="font-body text-warm-white">Početna</Link>
+              <Link to="/proizvodi" onClick={() => setIsOpen(false)} className="font-body text-warm-white">Proizvodi</Link>
+              <Link to="/farmeri" onClick={() => setIsOpen(false)} className="font-body text-warm-white">Farmeri</Link>
+              <Link to="/partner" onClick={() => setIsOpen(false)} className="font-body text-warm-white text-sm">Postani Partner</Link>
+              {user ? (
+                <>
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)} className="px-5 py-2.5 bg-primary text-primary-foreground font-body font-semibold text-sm text-center rounded-lg">Dashboard</Link>
+                  <button onClick={() => { signOut(); setIsOpen(false); }} className="px-5 py-2.5 border border-warm-white/30 text-warm-white font-body text-sm text-center rounded-lg">Odjavi se</button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" onClick={() => setIsOpen(false)} className="px-5 py-2.5 border border-warm-white/40 text-warm-white font-body font-semibold text-sm text-center rounded-lg">Prijavi se</Link>
+                  <Link to="/auth?mode=signup" onClick={() => setIsOpen(false)} className="px-5 py-2.5 bg-primary text-primary-foreground font-body font-semibold text-sm text-center rounded-lg">Registruj se</Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}
