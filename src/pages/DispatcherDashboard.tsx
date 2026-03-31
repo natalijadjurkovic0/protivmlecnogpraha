@@ -136,16 +136,41 @@ const DispatcherDashboard = () => {
   };
 
   const handleApprove = async (appId: string) => {
+    const app = applications.find((a) => a.id === appId);
+    
+    // Update application status
     const { error } = await supabase
       .from("partner_applications")
       .update({ status: "approved" })
       .eq("id", appId);
     if (error) {
       toast({ title: "Greška", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Odobreno! 👑", description: "Farmer je sada odobren." });
-      setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "approved" } : a)));
+      return;
     }
+
+    // If applicant has a user_id, update their role to mlekar
+    if (app?.user_id) {
+      // Check if they already have a role entry
+      const { data: existingRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", app.user_id)
+        .maybeSingle();
+
+      if (existingRole) {
+        await supabase
+          .from("user_roles")
+          .update({ role: "mlekar" as any })
+          .eq("user_id", app.user_id);
+      } else {
+        await supabase
+          .from("user_roles")
+          .insert({ user_id: app.user_id, role: "mlekar" as any });
+      }
+    }
+
+    toast({ title: "Odobreno! 👑", description: "Farmer je sada mlekar. Mission Accepted! ⭐" });
+    setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "approved" } : a)));
   };
 
   const handleReject = async (appId: string) => {
@@ -301,6 +326,7 @@ const DispatcherDashboard = () => {
                     </div>
                     <h3 className="font-display text-lg font-bold text-foreground">{app.full_name}</h3>
                     <div className="mt-3 space-y-1 font-body text-sm text-muted-foreground">
+                      {app.email && <p><span className="font-semibold text-foreground">Email:</span> {app.email}</p>}
                       <p><span className="font-semibold text-foreground">BPG:</span> {app.bpg}</p>
                       <p><span className="font-semibold text-foreground">JMBG:</span> {app.jmbg}</p>
                       <p><span className="font-semibold text-foreground">Adresa:</span> {app.address}</p>
