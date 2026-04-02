@@ -216,8 +216,8 @@ const Partner = () => {
                   )}
 
                   {user && (
-                    <div className="p-3 rounded-xl bg-secondary/10 border border-secondary/20">
-                      <p className="font-handwritten text-base text-secondary">
+                    <div className="p-3 rounded-xl border bg-primary-foreground border-primary">
+                      <p className="font-handwritten text-base text-primary">
                         ✓ Prijavljeni ste kao {user.email}
                       </p>
                     </div>
