@@ -100,6 +100,29 @@ const DriverDashboard = () => {
         .eq("status", "scheduled");
       if (ordErr) console.error("Orders fetch error:", ordErr);
 
+      // Collect unique user_ids from subscriptions and single orders
+      const userIds = [
+        ...new Set([
+          ...(subs || []).map((o) => o.user_id),
+          ...(singleOrders || []).map((o) => o.user_id),
+        ]),
+      ];
+
+      // Fetch customer profiles for delivery addresses
+      let profileMap: Record<string, { address: string | null; display_name: string | null }> = {};
+      if (userIds.length > 0) {
+        const { data: profiles, error: profErr } = await supabase
+          .from("profiles")
+          .select("user_id, address, display_name")
+          .in("user_id", userIds);
+        if (profErr) console.error("Profiles fetch error:", profErr);
+        if (profiles) {
+          profileMap = Object.fromEntries(
+            profiles.map((p) => [p.user_id, { address: p.address, display_name: p.display_name }])
+          );
+        }
+      }
+
       const payload = {
         driver_id: user.id,
         selected_date: selectedDateStr,
@@ -116,6 +139,8 @@ const DriverDashboard = () => {
             plan_type: o.plan_type,
             weekly_liters: o.weekly_liters,
             delivery_days: o.delivery_days,
+            delivery_address: profileMap[o.user_id]?.address || null,
+            customer_name: profileMap[o.user_id]?.display_name || null,
             type: "subscription",
           })),
           ...(singleOrders || []).map((o) => ({
@@ -123,7 +148,8 @@ const DriverDashboard = () => {
             user_id: o.user_id,
             delivery_date: o.delivery_date,
             items: o.items,
-            delivery_address: o.delivery_address,
+            delivery_address: o.delivery_address || profileMap[o.user_id]?.address || null,
+            customer_name: profileMap[o.user_id]?.display_name || null,
             type: "single_order",
           })),
         ],
