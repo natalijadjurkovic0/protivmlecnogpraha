@@ -6,6 +6,9 @@ interface RouteStop {
   address: string;
   liters: number;
   time: string;
+  user_id?: string;
+  subscription_id?: string;
+  order_id?: string;
 }
 
 interface RouteTimelineProps {
@@ -155,4 +158,5 @@ const RouteTimeline = ({ route, completedStops, onToggleStop, dateLabel }: Route
   </motion.div>
 );
 
+export type { RouteStop };
 export default RouteTimeline;
