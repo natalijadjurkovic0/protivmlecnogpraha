@@ -417,7 +417,7 @@ const Dashboard = () => {
                         key={day}
                         className="px-3 py-1 rounded-full bg-primary/10 text-foreground font-body text-xs font-medium"
                       >
-                        {dayLabels[day] || day}
+                        {DAY_SHORT_SR[day] || day}
                       </span>
                     ))}
                   </div>
