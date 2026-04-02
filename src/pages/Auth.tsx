@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 
 const Auth = () => {
-  const [searchParams] = useSearchParams();
-  const [isLogin, setIsLogin] = useState(searchParams.get("mode") !== "signup");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isLogin = searchParams.get("mode") !== "signup";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -143,7 +143,7 @@ const Auth = () => {
             <p className="text-center mt-6 font-body text-warm-white/60 text-sm">
               {isLogin ? "Nemate nalog?" : "Već imate nalog?"}{" "}
               <button
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => setSearchParams(isLogin ? { mode: "signup" } : {})}
                 className="text-primary font-semibold hover:underline"
               >
                 {isLogin ? "Registrujte se" : "Prijavite se"}
