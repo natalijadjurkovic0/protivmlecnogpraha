@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollSection from "@/components/ScrollSection";
 import WindingRoad from "@/components/WindingRoad";
+import FloatingDoodles from "@/components/FloatingDoodles";
 import { StarDoodle, HeartDoodle, CrownDoodle, ArrowDoodle } from "@/components/DoodleOverlays";
 import farmerImg from "@/assets/farmer.jpg";
 import landscapeImg from "@/assets/rural-landscape.jpg";
@@ -13,7 +14,7 @@ const Farmeri = () => {
     <div className="relative">
       <Navbar />
       <WindingRoad />
-
+      <FloatingDoodles />
       {/* Hero */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0">

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollSection from "@/components/ScrollSection";
+import FloatingDoodles from "@/components/FloatingDoodles";
 import { StarDoodle, HeartDoodle, ScribbleCircle } from "@/components/DoodleOverlays";
 import milkImg from "@/assets/milk-pour.jpg";
 import farmerImg from "@/assets/farmer.jpg";
@@ -45,6 +46,7 @@ const Proizvodi = () => {
   return (
     <div className="relative">
       <Navbar />
+      <FloatingDoodles />
 
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-20">
