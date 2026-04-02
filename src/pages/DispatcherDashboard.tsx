@@ -39,6 +39,87 @@ const DAYS_OF_WEEK = [
   { label: "Nedelja", value: "sunday" },
 ];
 
+const FarmerDetailDialog = ({ app }: { app: any }) => {
+  const [dailyOffers, setDailyOffers] = useState<any[]>([]);
+  const [loadingOffers, setLoadingOffers] = useState(false);
+
+  const fetchOffers = async () => {
+    if (!app.user_id) return;
+    setLoadingOffers(true);
+    const { data } = await supabase
+      .from("farmer_daily_offers")
+      .select("day_of_week, liters")
+      .eq("user_id", app.user_id);
+    setDailyOffers(data || []);
+    setLoadingOffers(false);
+  };
+
+  return (
+    <DialogContent className="sm:max-w-md">
+      <DialogHeader>
+        <DialogTitle className="font-display text-xl">{app.full_name}</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-3 font-body text-sm">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="text-muted-foreground">Status:</div>
+          <div className="font-semibold">{app.status === "approved" ? "Odobren 👑" : "Na čekanju"}</div>
+          {app.email && <>
+            <div className="text-muted-foreground">Email:</div>
+            <div>{app.email}</div>
+          </>}
+          <div className="text-muted-foreground">BPG:</div>
+          <div>{app.bpg}</div>
+          <div className="text-muted-foreground">JMBG:</div>
+          <div>{app.jmbg}</div>
+          <div className="text-muted-foreground">Adresa:</div>
+          <div>{app.address}</div>
+          <div className="text-muted-foreground">Kapacitet:</div>
+          <div className="font-semibold text-primary">{app.capacity_liters_per_day}L/dan</div>
+        </div>
+
+        {/* Daily offers section */}
+        {app.user_id && (
+          <div className="pt-3 border-t border-border">
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-semibold text-foreground">Dnevna ponuda po danima:</p>
+              {dailyOffers.length === 0 && !loadingOffers && (
+                <button onClick={fetchOffers} className="text-xs text-primary hover:underline">Učitaj</button>
+              )}
+            </div>
+            {loadingOffers ? (
+              <p className="text-xs text-muted-foreground">Učitavanje...</p>
+            ) : dailyOffers.length > 0 ? (
+              <div className="space-y-1">
+                {DAYS_OF_WEEK.map((day) => {
+                  const offer = dailyOffers.find((o: any) => o.day_of_week === day.value);
+                  return (
+                    <div key={day.value} className="flex justify-between items-center py-1 px-2 rounded bg-muted/50">
+                      <span>{day.label}</span>
+                      <span className="font-semibold text-primary">{offer ? `${offer.liters}L` : "—"}</span>
+                    </div>
+                  );
+                })}
+                <div className="flex justify-between items-center py-1 px-2 rounded bg-primary/10 font-bold">
+                  <span>Ukupno nedeljno:</span>
+                  <span className="text-primary">{dailyOffers.reduce((s: number, o: any) => s + Number(o.liters), 0)}L</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Farmer još nije uneo dnevnu ponudu. Kliknite "Učitaj" da proverite.</p>
+            )}
+          </div>
+        )}
+
+        <div className="pt-3 border-t border-border">
+          <p className="text-xs text-muted-foreground">
+            Prijava podneta: {new Date(app.created_at).toLocaleDateString("sr-RS", { day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        </div>
+      </div>
+    </DialogContent>
+  );
+};
+
 const DispatcherDashboard = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -395,34 +476,7 @@ const DispatcherDashboard = () => {
                           Prikaži detalje
                         </button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle className="font-display text-xl">{app.full_name}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-3 font-body text-sm">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="text-muted-foreground">Status:</div>
-                            <div className="font-semibold">{app.status === "approved" ? "Odobren 👑" : "Na čekanju"}</div>
-                            {app.email && <>
-                              <div className="text-muted-foreground">Email:</div>
-                              <div>{app.email}</div>
-                            </>}
-                            <div className="text-muted-foreground">BPG:</div>
-                            <div>{app.bpg}</div>
-                            <div className="text-muted-foreground">JMBG:</div>
-                            <div>{app.jmbg}</div>
-                            <div className="text-muted-foreground">Adresa:</div>
-                            <div>{app.address}</div>
-                            <div className="text-muted-foreground">Kapacitet:</div>
-                            <div className="font-semibold text-primary">{app.capacity_liters_per_day}L/dan</div>
-                          </div>
-                          <div className="pt-3 border-t border-border">
-                            <p className="text-xs text-muted-foreground">
-                              Prijava podneta: {new Date(app.created_at).toLocaleDateString("sr-RS", { day: "numeric", month: "long", year: "numeric" })}
-                            </p>
-                          </div>
-                        </div>
-                      </DialogContent>
+                      <FarmerDetailDialog app={app} />
                     </Dialog>
 
                     {app.status === "pending" && (

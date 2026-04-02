@@ -107,6 +107,33 @@ export type Database = {
         }
         Relationships: []
       }
+      farmer_daily_offers: {
+        Row: {
+          created_at: string
+          day_of_week: string
+          id: string
+          liters: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: string
+          id?: string
+          liters?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: string
+          id?: string
+          liters?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           add_on_ids: string[] | null

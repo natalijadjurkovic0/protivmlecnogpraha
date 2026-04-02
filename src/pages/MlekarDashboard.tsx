@@ -36,7 +36,22 @@ const MlekarDashboard = () => {
     if (!user) return;
     fetchProfile();
     fetchApplication();
+    fetchDailyOffers();
   }, [user]);
+
+  const fetchDailyOffers = async () => {
+    const { data } = await supabase
+      .from("farmer_daily_offers")
+      .select("day_of_week, liters")
+      .eq("user_id", user!.id);
+    if (data) {
+      const offers: Record<string, string> = {};
+      data.forEach((row: any) => {
+        offers[row.day_of_week] = String(row.liters);
+      });
+      setDailyOffers(offers);
+    }
+  };
 
   const fetchProfile = async () => {
     const { data } = await supabase
@@ -62,7 +77,24 @@ const MlekarDashboard = () => {
 
   const handleSave = async () => {
     setSaving(true);
-    // For now, save daily offers to user's profile metadata or show toast
+    const entries = DAYS.map((day) => ({
+      user_id: user!.id,
+      day_of_week: day.value,
+      liters: Number(dailyOffers[day.value]) || 0,
+    }));
+
+    // Upsert each day
+    for (const entry of entries) {
+      const { error } = await supabase
+        .from("farmer_daily_offers")
+        .upsert(entry, { onConflict: "user_id,day_of_week" });
+      if (error) {
+        toast({ title: "Greška", description: error.message, variant: "destructive" });
+        setSaving(false);
+        return;
+      }
+    }
+
     toast({
       title: "Ponuda sačuvana! ⭐",
       description: "Vaša dnevna ponuda mleka je ažurirana.",
