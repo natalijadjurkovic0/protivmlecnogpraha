@@ -63,7 +63,7 @@ const DriverDashboard = () => {
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
   const selectedDateLabel = isSameDay(selectedDate, startOfToday())
     ? "danas"
-    : format(selectedDate, "EEEE, d. MMM", { locale: sr });
+    : formatDisplayDate(selectedDate, "vozac");
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);

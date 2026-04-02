@@ -470,11 +470,7 @@ const Dashboard = () => {
                         </span>
                         <div>
                           <p className="font-body text-sm font-semibold text-foreground">
-                            {new Date(order.delivery_date).toLocaleDateString("sr-Latn-RS", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
+                            {formatDisplayDate(order.delivery_date, "kupac")}
                           </p>
                           <p className="font-body text-xs text-muted-foreground capitalize">
                             {order.status}
