@@ -12,7 +12,7 @@ import RouteLoadingAnimation from "@/components/driver/RouteLoadingAnimation";
 import RouteTimeline from "@/components/driver/RouteTimeline";
 import { formatDisplayDate } from "@/lib/dateHelpers";
 
-const AI_ROUTE_URL = "https://cresyl-malisa-pseudoambidextrously.ngrok-free.dev/api/generate-route";
+const AI_ROUTE_URL = "https://mlecniput-1.onrender.com/api/generate-route";
 
 const DAY_MAP: Record<number, string> = {
   0: "sunday", 1: "monday", 2: "tuesday", 3: "wednesday",
