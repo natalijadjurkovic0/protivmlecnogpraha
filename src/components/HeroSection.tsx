@@ -57,9 +57,9 @@ const HeroSection = () => {
           className="mt-4 max-w-xl mx-auto"
         >
           <p className="font-handwritten text-xl md:text-3xl text-primary leading-relaxed drop-shadow-lg">
-            <span className="marker-underline">"Uz pravo mleko nema straha,</span>
+            <span className="marker-underline">{'"Uz pravo mleko nema straha,'}</span>
             <br />
-            <span className="marker-underline">bezimo od mlecnog praha."</span>
+            <span className="marker-underline">{"be\u017Eimo od mle\u010Dnog praha.\""}</span>
           </p>
         </motion.div>
 
