@@ -90,7 +90,7 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     if (!user) return;
-    const [subRes, ordRes] = await Promise.all([
+    const [subRes, ordRes, histRes] = await Promise.all([
       supabase
         .from("subscriptions")
         .select("*")
@@ -103,10 +103,17 @@ const Dashboard = () => {
         .eq("user_id", user.id)
         .order("delivery_date", { ascending: false })
         .limit(10),
+      supabase
+        .from("delivery_history")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("exact_date", { ascending: false })
+        .limit(20),
     ]);
     if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0]);
     else setSubscription(null);
     if (ordRes.data) setOrders(ordRes.data);
+    if (histRes.data) setDeliveryHistory(histRes.data);
     setFetching(false);
   };
 
