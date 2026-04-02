@@ -20,9 +20,13 @@ type Subscription = Tables<"subscriptions">;
 type Order = Tables<"orders">;
 
 const dayLabels: Record<string, string> = {
-  monday: "Pon",
-  wednesday: "Sre",
-  saturday: "Sub",
+  Ponedeljak: "Pon",
+  Utorak: "Uto",
+  Sreda: "Sre",
+  Četvrtak: "Čet",
+  Petak: "Pet",
+  Subota: "Sub",
+  Nedelja: "Ned",
 };
 
 const MilkSplash = ({ show }: { show: boolean }) => (

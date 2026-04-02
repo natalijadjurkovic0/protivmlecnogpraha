@@ -15,8 +15,8 @@ import RouteTimeline from "@/components/driver/RouteTimeline";
 const AI_ROUTE_URL = "https://cresyl-malisa-pseudoambidextrously.ngrok-free.dev/api/generate-route";
 
 const DAY_MAP: Record<number, string> = {
-  0: "sunday", 1: "monday", 2: "tuesday", 3: "wednesday",
-  4: "thursday", 5: "friday", 6: "saturday",
+  0: "Nedelja", 1: "Ponedeljak", 2: "Utorak", 3: "Sreda",
+  4: "Četvrtak", 5: "Petak", 6: "Subota",
 };
 
 interface RouteStop {
