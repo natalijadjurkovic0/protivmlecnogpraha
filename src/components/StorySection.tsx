@@ -15,7 +15,7 @@ const StorySection = () => {
               <img
                 src={farmerImg}
                 alt="Srpski farmer"
-                className="rounded-2xl shadow-2xl w-full"
+                className="rounded-2xl shadow-2xl w-full object-fill"
                 loading="lazy"
                 width={800}
                 height={1080}
@@ -24,14 +24,12 @@ const StorySection = () => {
               <StarDoodle className="absolute -bottom-3 -left-3" />
             </div>
             <div>
-              <span className="font-handwritten text-2xl text-primary">Naša priča</span>
+              <span className="font-handwritten text-primary font-semibold text-xl">Naša priča</span>
               <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mt-2 mb-6">
-                <span className="marker-underline">[NASLOV PRIČE]</span>
+                <span className="marker-underline">Spasavamo srpsko selo, litar po litar.</span>
               </h2>
               <p className="font-body text-lg text-muted-foreground leading-relaxed mb-6">
-                [DETALJAN OPIS — Ovde unesite priču o tome kako je Mlečni put nastao.
-                Opišite misiju, viziju i strast prema pravom, svežem mleku direktno sa
-                srpskih farmi. Napišite o tradiciji, kvalitetu i zajednici mlekara.]
+                Broj krava u Srbiji drastično opada, a zvanična statistika pokazuje da preko 600 sela više nema nijednu kravu. Platforma je nastala sa jednom jasnom misijom: da sačuvamo preostale heroje našeg stočarstva i vratimo pravo, netaknuto mleko na vaše trpeze.
               </p>
               <p className="font-handwritten text-xl text-earth-green">
                 ✦ Od farme do vašeg stola — bez posrednika ✦
@@ -46,20 +44,25 @@ const StorySection = () => {
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
-              <span className="font-handwritten text-2xl text-primary">Kako funkcioniše?</span>
+              <span className="font-handwritten text-primary font-semibold text-xl">​Mi nismo samo logistika, već zajednica koja vraća tradiciju.</span>
               <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mt-2 mb-6">
-                [NASLOV PROCESA]
+                ​Kako funkcionišemo?
               </h2>
               <div className="space-y-6">
-                {["Farmer muze kravu u zoru", "Mleko se preuzima istog dana", "Vozač dostavlja do vaših vrata", "Vi uživate u svežem mleku"].map((step, i) => (
+                {[
+                  { title: "Farmer muze kravu u zoru", desc: "Zaboravite na masovnu proizvodnju, naručuje se tačno onoliko koliko je potrebno! Time čuvamo stopostotnu svežinu i sprečavavamo rasipanje." },
+                  { title: "Mleko se preuzima istog dana", desc: "Naša napredna tehnologija svakog jutra preračunava idealne rute kako bi mleko u najkraćem mogućem roku bilo preuzeto sa lokalnih gazdinstava." },
+                  { title: "Vozač dostavlja do vaših vrata", desc: "Vođeni strogim vremenskim prozorima, vozači Vam mleko ostavljaju pravo na kućni prag." },
+                  { title: "Vi uživate u svežem mleku", desc: "Potpuno domaće, neprerađeno i bogato nutrijentima – ukus zdravlja koji ste dugo tražili, a Vaše je samo da mleko prokuvate u prvih 24h!" }
+                ].map((step, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center font-display font-bold text-primary-foreground text-lg">
                       {i + 1}
                     </div>
                     <div>
-                      <p className="font-body font-semibold text-foreground text-lg">{step}</p>
+                      <p className="font-body font-semibold text-foreground text-lg">{step.title}</p>
                       <p className="font-body text-muted-foreground text-sm mt-1">
-                        [Detaljan opis koraka {i + 1}]
+                        {step.desc}
                       </p>
                     </div>
                   </div>
@@ -70,7 +73,7 @@ const StorySection = () => {
               <img
                 src={landscapeImg}
                 alt="Srpsko selo — put dostave"
-                className="rounded-2xl shadow-2xl w-full"
+                className="rounded-2xl shadow-2xl w-full object-fill"
                 loading="lazy"
                 width={1920}
                 height={1080}
@@ -90,7 +93,7 @@ const StorySection = () => {
               <img
                 src={milkImg}
                 alt="Sveže mleko"
-                className="rounded-2xl shadow-2xl w-full"
+                className="rounded-2xl shadow-2xl w-full object-fill"
                 loading="lazy"
                 width={800}
                 height={1080}
@@ -99,14 +102,12 @@ const StorySection = () => {
               <HeartDoodle className="absolute bottom-4 -left-4" />
             </div>
             <div>
-              <span className="font-handwritten text-2xl text-primary">Kvalitet bez kompromisa</span>
+              <span className="font-handwritten text-primary font-semibold text-xl">Kvalitet bez kompromisa</span>
               <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mt-2 mb-6">
-                <span className="marker-underline">[NASLOV O KVALITETU]</span>
+                <span className="marker-underline">Zaboravite na mleko u prahu.</span>
               </h2>
               <p className="font-body text-lg text-muted-foreground leading-relaxed mb-6">
-                [DETALJAN OPIS — Opišite zašto je vaše mleko posebno. Govorite o kontroli
-                kvaliteta, zdravlju životinja, prirodnoj ishrani krava, odsustvu hormona
-                i antibiotika. Objasnite razliku između pravog mleka i mlečnog praha.]
+                Da li ste znali da Srbija samo u jednoj godini uveze i do 10.000 tona mleka u prahu koje završava u mlečnim proizvodima industrijskih giganata? Mi Vam donosimo vam 100% prirodno sirovo kravlje mleko sa seoskih pašnjaka, bez hormona, antibiotika i veštačkih procesa obogaćivanja. Pre nego što stigne do vas, svaka isporuka prolazi kroz višestruki sistem verifikacije koji rigorozno proverava sanitarne uslove i mikrobiološke potvrde farmera.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 {["100% Prirodno", "Bez hormona", "Sveže svaki dan", "Lokalno"].map((tag) => (
@@ -127,21 +128,19 @@ const StorySection = () => {
       <ScrollSection direction="right" className="bg-accent text-accent-foreground">
         <div className="container mx-auto px-6 text-center">
           <StarDoodle className="mx-auto mb-4 scale-150" />
-          <span className="font-handwritten text-2xl text-primary">Zajednica</span>
+          <span className="font-handwritten text-primary font-semibold text-xl">Zajednica</span>
           <h2 className="font-display text-4xl md:text-6xl font-black mt-2 mb-8">
-            [NASLOV O ZAJEDNICI]
+            Ne damo srpsko mleko!
           </h2>
           <p className="font-body text-lg text-accent-foreground/80 leading-relaxed max-w-3xl mx-auto mb-12">
-            [DETALJAN OPIS — Opišite zajednicu mlekara, kupaca i vozača koji čine Mlečni put.
-            Koliko farmi je uključeno? Koliko porodica uživa u svežem mleku? Kakve su povratne
-            informacije kupaca?]
+            Ostvarujemo pravedniju zaradu za selo i bolji proizvod za gradsku porodicu. Vaša pretplata direktno oživljava seoska gazdinstva. Svaki višak mleka automatski preusmeravamo kao direktnu donaciju narodnim kuhinjama, bolnicama i vrtićima. 
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { num: "[XXX]", label: "Farmera" },
-              { num: "[XXX]", label: "Kupaca" },
-              { num: "[XXX]", label: "Litara dnevno" },
-              { num: "[XXX]", label: "Sela" },
+              { num: "50+", label: "Farmera" },
+              { num: "1200+", label: "Kupaca" },
+              { num: "3000+", label: "Litara dnevno" },
+              { num: "​10+", label: "Sela" },
             ].map((stat) => (
               <div key={stat.label}>
                 <p className="font-display text-4xl md:text-5xl font-black text-primary">{stat.num}</p>
