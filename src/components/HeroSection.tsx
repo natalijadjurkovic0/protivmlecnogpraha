@@ -42,7 +42,7 @@ const HeroSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-black text-warm-white leading-none mb-2 hero-text-shadow">
-            Mlecni{" "}
+            {"Mle\u010Dni"}{" "}
             <span className="font-handwritten text-primary italic text-7xl md:text-9xl lg:text-[10rem] drop-shadow-lg">
               put
             </span>
