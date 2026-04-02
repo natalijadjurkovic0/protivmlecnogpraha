@@ -14,7 +14,7 @@ const Farmeri = () => {
     <div className="relative">
       <Navbar />
       <WindingRoad />
-
+      <FloatingDoodles />
       {/* Hero */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0">

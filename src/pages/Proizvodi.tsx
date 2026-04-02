@@ -46,6 +46,7 @@ const Proizvodi = () => {
   return (
     <div className="relative">
       <Navbar />
+      <FloatingDoodles />
 
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-20">
