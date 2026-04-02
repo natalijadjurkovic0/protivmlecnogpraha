@@ -46,7 +46,7 @@ const StorySection = () => {
             <div className="order-2 md:order-1">
               <span className="font-handwritten text-primary font-semibold text-xl">Mi nismo samo logistika, već zajednica koja vraća tradiciju.</span>
               <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mt-2 mb-6">
-                ​Kako funkcionišemo?
+                Kako funkcionišemo?
               </h2>
               <div className="space-y-6">
                 {[
