@@ -61,7 +61,7 @@ const Farmeri = () => {
             <div>
               <span className="font-handwritten text-2xl text-primary">Poglavlje 1</span>
               <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mt-2 mb-6">
-                <span className="marker-underline">[PRIČA O NAŠIM FARMERIMA]</span>
+                <span className="marker-underline">Ljudi koji su pobedili statistiku</span>
               </h2>
               <p className="font-body text-lg text-muted-foreground leading-relaxed mb-4">
                 Srpsko selo se gasi. Mladi odlaze, stari ostaju sa kravama i praznim ambarima.
@@ -69,8 +69,7 @@ const Farmeri = () => {
                 da poštena cena nije utopija, i da selo može da živi.
               </p>
               <p className="font-body text-lg text-muted-foreground leading-relaxed mb-4">
-                [DETALJAN OPIS — Ovde unesite stvarne priče vaših farmera. Ko su oni?
-                Koliko generacija se bave stočarstvom? Šta ih motiviše da nastave?]
+                Platforma je nastala sa jednom jasnom misijom: da sačuvamo preostale heroje našeg stočarstva i vratimo pravo, netaknuto mleko na vaše trpeze.
               </p>
               <p className="font-handwritten text-xl text-earth-green">
                 ✦ Svaki farmer ima ime, priču i dostojanstvo ✦
@@ -87,7 +86,7 @@ const Farmeri = () => {
             <div className="order-2 md:order-1">
               <span className="font-handwritten text-2xl text-primary">Poglavlje 2</span>
               <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mt-2 mb-6">
-                <span className="marker-underline">[KAKO POMAŽEMO SELU]</span>
+                <span className="marker-underline">Kako pomažemo selu?</span>
               </h2>
               <p className="font-body text-lg text-muted-foreground leading-relaxed mb-4">
                 Mlečni put nije samo dostava mleka — to je pokret. Svaka litara koju kupite
@@ -95,8 +94,7 @@ const Farmeri = () => {
                 koje plaćaju manje od cene hrane za krave.
               </p>
               <p className="font-body text-lg text-muted-foreground leading-relaxed mb-4">
-                [DETALJAN OPIS — Opišite kako vaš model pomaže farmerima. Koliko više
-                zarađuju u poređenju sa tradicionalnim otkupom? Kakve su povratne informacije?]
+                Trenutna otkupna cena sirovog mleka pala je na istorijski minimum od svega 49 dinara, što je često niže od cene flaširane vode.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 {["Fer cena", "Direktna isplata", "Bez posrednika", "Podrška zajednici"].map((tag) => (
@@ -128,15 +126,13 @@ const Farmeri = () => {
             <div>
               <span className="font-handwritten text-2xl text-primary">Poglavlje 3</span>
               <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mt-2 mb-6">
-                <span className="marker-underline">[PUT OD FARME DO STOLA]</span>
+                <span className="marker-underline">Brzina koju priroda zaslužuje</span>
               </h2>
               <p className="font-body text-lg text-muted-foreground leading-relaxed mb-4">
-                Mleko se muze u zoru. Pre nego što sunce ogreje, naš vozač ga preuzima.
-                Do podne je na vašem stolu — svežije nego u bilo kojoj prodavnici.
+                Industrijsko mleko na policama marketa često putuje danima i prolazi kroz agresivne procese obrade kako bi preživelo transport.
               </p>
               <p className="font-body text-lg text-muted-foreground leading-relaxed">
-                [DETALJAN OPIS — Opišite logistiku. Kako izgleda jedan dan u životu
-                vozača Mlečnog puta? Koliko kilometara pređe? Koliko porodica opslužuje?]
+                Mleko se muze u zoru. Pre nego što sunce ogreje, naš vozač ga preuzima. Do podne je na vašem stolu — svežije nego u bilo kojoj prodavnici.
               </p>
             </div>
           </div>
@@ -153,10 +149,10 @@ const Farmeri = () => {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { num: "[XX]", label: "Farmera" },
-              { num: "[XXX]", label: "Zadovoljnih kupaca" },
-              { num: "[XXX]", label: "Litara dnevno" },
-              { num: "[XX]", label: "Sela u mreži" },
+              { num: "50+", label: "Farmera" },
+              { num: "1200+", label: "Zadovoljnih kupaca" },
+              { num: "3000+", label: "Litara dnevno" },
+              { num: "10+", label: "Sela u mreži" },
             ].map((stat) => (
               <div key={stat.label}>
                 <p className="font-display text-4xl md:text-5xl font-black text-primary">{stat.num}</p>
