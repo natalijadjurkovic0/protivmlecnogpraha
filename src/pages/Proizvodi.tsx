@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollSection from "@/components/ScrollSection";
+import FloatingDoodles from "@/components/FloatingDoodles";
 import { StarDoodle, HeartDoodle, ScribbleCircle } from "@/components/DoodleOverlays";
 import milkImg from "@/assets/milk-pour.jpg";
 import farmerImg from "@/assets/farmer.jpg";
