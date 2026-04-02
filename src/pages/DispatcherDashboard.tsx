@@ -331,17 +331,43 @@ const DispatcherDashboard = () => {
           {/* Tab 1: Farmer Applications */}
           <TabsContent value="applications">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <AnimatePresence>
               {applications.length === 0 ? (
                 <p className="font-body text-muted-foreground col-span-full text-center py-12">Nema prijava za pregled.</p>
               ) : (
-                applications.map((app, i) => (
+                applications.filter(a => a.status !== "rejected").map((app, i) => (
                   <motion.div
                     key={app.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.3 } }}
                     transition={{ delay: i * 0.05 }}
+                    layout
                     className="relative p-6 rounded-2xl bg-card border-2 border-border hover:border-primary/30 transition-colors"
                   >
+                    {/* X button to delete */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className="absolute top-3 right-3 p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Ukloni farmera?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Da li ste sigurni da želite da uklonite <strong>{app.full_name}</strong> iz baze? Ova akcija je nepovratna.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Otkaži</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteApplication(app.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Ukloni
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+
                     {app.status === "approved" && (
                       <div className="absolute -top-4 -right-2">
                         <CrownDoodle className="w-12 h-10" />
@@ -350,20 +376,55 @@ const DispatcherDashboard = () => {
                     <div className="mb-4">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-body font-bold ${
                         app.status === "approved" ? "bg-secondary/20 text-secondary" :
-                        app.status === "rejected" ? "bg-destructive/20 text-destructive" :
                         "bg-primary/20 text-primary-foreground"
                       }`}>
-                        {app.status === "approved" ? "Odobren 👑" : app.status === "rejected" ? "Odbijen" : "Na čekanju"}
+                        {app.status === "approved" ? "Odobren 👑" : "Na čekanju"}
                       </span>
                     </div>
                     <h3 className="font-display text-lg font-bold text-foreground">{app.full_name}</h3>
                     <div className="mt-3 space-y-1 font-body text-sm text-muted-foreground">
-                      {app.email && <p><span className="font-semibold text-foreground">Email:</span> {app.email}</p>}
-                      <p><span className="font-semibold text-foreground">BPG:</span> {app.bpg}</p>
-                      <p><span className="font-semibold text-foreground">JMBG:</span> {app.jmbg}</p>
-                      <p><span className="font-semibold text-foreground">Adresa:</span> {app.address}</p>
                       <p><span className="font-semibold text-foreground">Kapacitet:</span> {app.capacity_liters_per_day}L/dan</p>
+                      <p><span className="font-semibold text-foreground">Adresa:</span> {app.address}</p>
                     </div>
+
+                    {/* Details popup button */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="mt-3 flex items-center gap-1.5 text-xs font-body text-primary hover:underline">
+                          <Eye className="w-3.5 h-3.5" />
+                          Prikaži detalje
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle className="font-display text-xl">{app.full_name}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-3 font-body text-sm">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="text-muted-foreground">Status:</div>
+                            <div className="font-semibold">{app.status === "approved" ? "Odobren 👑" : "Na čekanju"}</div>
+                            {app.email && <>
+                              <div className="text-muted-foreground">Email:</div>
+                              <div>{app.email}</div>
+                            </>}
+                            <div className="text-muted-foreground">BPG:</div>
+                            <div>{app.bpg}</div>
+                            <div className="text-muted-foreground">JMBG:</div>
+                            <div>{app.jmbg}</div>
+                            <div className="text-muted-foreground">Adresa:</div>
+                            <div>{app.address}</div>
+                            <div className="text-muted-foreground">Kapacitet:</div>
+                            <div className="font-semibold text-primary">{app.capacity_liters_per_day}L/dan</div>
+                          </div>
+                          <div className="pt-3 border-t border-border">
+                            <p className="text-xs text-muted-foreground">
+                              Prijava podneta: {new Date(app.created_at).toLocaleDateString("sr-RS", { day: "numeric", month: "long", year: "numeric" })}
+                            </p>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
                     {app.status === "pending" && (
                       <div className="mt-4 flex gap-3">
                         <button onClick={() => handleApprove(app.id)} className="flex-1 py-2 bg-secondary text-secondary-foreground font-body font-bold text-sm rounded-xl hover:scale-105 transition-transform">
@@ -377,6 +438,7 @@ const DispatcherDashboard = () => {
                   </motion.div>
                 ))
               )}
+              </AnimatePresence>
             </div>
           </TabsContent>
 
