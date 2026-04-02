@@ -69,7 +69,9 @@ export type Database = {
         Row: {
           add_on_ids: string[] | null
           created_at: string
+          delivery_address: string | null
           delivery_date: string
+          driver_note: string | null
           id: string
           items: Json
           status: string
@@ -81,7 +83,9 @@ export type Database = {
         Insert: {
           add_on_ids?: string[] | null
           created_at?: string
+          delivery_address?: string | null
           delivery_date: string
+          driver_note?: string | null
           id?: string
           items?: Json
           status?: string
@@ -93,7 +97,9 @@ export type Database = {
         Update: {
           add_on_ids?: string[] | null
           created_at?: string
+          delivery_address?: string | null
           delivery_date?: string
+          driver_note?: string | null
           id?: string
           items?: Json
           status?: string
