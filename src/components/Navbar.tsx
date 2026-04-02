@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,6 +15,17 @@ const Navbar = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const isHome = location.pathname === "/";
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > window.innerHeight * 0.8);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const showShadow = !isHome || scrolled;
 
   useEffect(() => {
     if (!user) return;
@@ -33,7 +45,13 @@ const Navbar = () => {
   }, [user]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        showShadow
+          ? "bg-foreground/90 backdrop-blur-md shadow-lg"
+          : "bg-transparent"
+      }`}
+    >
       <div className="container mx-auto px-6 py-5 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-1">
           <span className="font-display text-xl font-bold text-warm-white">Mlečni</span>
@@ -67,12 +85,26 @@ const Navbar = () => {
               </button>
             </div>
           ) : (
-            <Link
-              to="/partner"
-              className="px-6 py-2.5 bg-primary text-foreground font-body font-bold text-sm rounded-sm hover:scale-105 transition-transform border-2 border-foreground/20"
-            >
-              Postani Partner
-            </Link>
+            <div className="flex items-center gap-3 ml-2">
+              <Link
+                to="/auth"
+                className="px-5 py-2 border border-warm-white/40 text-warm-white font-body font-semibold text-sm rounded-sm hover:bg-warm-white/10 transition-colors"
+              >
+                Prijavi se
+              </Link>
+              <Link
+                to="/auth?mode=signup"
+                className="px-5 py-2 bg-primary text-foreground font-body font-bold text-sm rounded-sm hover:scale-105 transition-transform"
+              >
+                Registruj se
+              </Link>
+              <Link
+                to="/partner"
+                className="px-5 py-2 bg-primary text-foreground font-body font-bold text-sm rounded-sm hover:scale-105 transition-transform border-2 border-foreground/20"
+              >
+                Postani Partner
+              </Link>
+            </div>
           )}
         </div>
 
@@ -102,7 +134,11 @@ const Navbar = () => {
                   <button onClick={() => { signOut(); setIsOpen(false); }} className="px-5 py-2.5 border border-warm-white/30 text-warm-white font-body text-sm text-center rounded-sm">Odjavi se</button>
                 </>
               ) : (
-                <Link to="/partner" onClick={() => setIsOpen(false)} className="px-5 py-2.5 bg-primary text-foreground font-body font-bold text-sm text-center rounded-sm">Postani Partner</Link>
+                <>
+                  <Link to="/auth" onClick={() => setIsOpen(false)} className="px-5 py-2.5 border border-warm-white/40 text-warm-white font-body font-semibold text-sm text-center rounded-sm">Prijavi se</Link>
+                  <Link to="/auth?mode=signup" onClick={() => setIsOpen(false)} className="px-5 py-2.5 bg-primary text-foreground font-body font-bold text-sm text-center rounded-sm">Registruj se</Link>
+                  <Link to="/partner" onClick={() => setIsOpen(false)} className="px-5 py-2.5 bg-primary text-foreground font-body font-bold text-sm text-center rounded-sm border-2 border-foreground/20">Postani Partner</Link>
+                </>
               )}
             </div>
           </motion.div>
