@@ -80,7 +80,7 @@ const HeroSection = () => {
             href="#story"
             className="px-10 py-4 border-2 border-foreground text-warm-white font-body font-bold text-lg rounded-sm hover:bg-warm-white hover:text-foreground transition-all inline-flex items-center gap-2"
           >
-            Istrazi Pricu <span className="text-sm">&#x2193;</span>
+            {"Istra\u017Ei Pri\u010Du"} <span className="text-sm">&#x2193;</span>
           </a>
         </motion.div>
       </div>
