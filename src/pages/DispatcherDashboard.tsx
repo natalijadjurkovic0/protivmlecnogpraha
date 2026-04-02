@@ -201,7 +201,20 @@ const DispatcherDashboard = () => {
       toast({ title: "Greška", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Odbijeno", description: "Prijava je odbijena." });
-      setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "rejected" } : a)));
+      setApplications((prev) => prev.filter((a) => a.id !== appId));
+    }
+  };
+
+  const handleDeleteApplication = async (appId: string) => {
+    const { error } = await supabase
+      .from("partner_applications")
+      .delete()
+      .eq("id", appId);
+    if (error) {
+      toast({ title: "Greška", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Uklonjeno", description: "Prijava je uklonjena iz baze." });
+      setApplications((prev) => prev.filter((a) => a.id !== appId));
     }
   };
 
