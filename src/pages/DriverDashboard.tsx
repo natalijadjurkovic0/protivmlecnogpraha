@@ -11,6 +11,7 @@ import WeeklyPlanner from "@/components/driver/WeeklyPlanner";
 import DayOffDoodle from "@/components/driver/DayOffDoodle";
 import RouteLoadingAnimation from "@/components/driver/RouteLoadingAnimation";
 import RouteTimeline from "@/components/driver/RouteTimeline";
+import { formatDisplayDate } from "@/lib/dateHelpers";
 
 const AI_ROUTE_URL = "https://cresyl-malisa-pseudoambidextrously.ngrok-free.dev/api/generate-route";
 
