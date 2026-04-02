@@ -291,12 +291,15 @@ const Dashboard = () => {
   // Next delivery calculation
   const getNextDeliveryDate = () => {
     if (!subscription || subscription.status !== "active") return null;
-    const dayMap: Record<string, number> = { monday: 1, wednesday: 3, saturday: 6 };
+    const serbianDayToNum: Record<string, number> = {
+      Ponedeljak: 1, Utorak: 2, Sreda: 3, Četvrtak: 4,
+      Petak: 5, Subota: 6, Nedelja: 0,
+    };
     const today = new Date();
     const todayDay = today.getDay();
     const deliveryDays = subscription.delivery_days
-      .map((d) => dayMap[d])
-      .filter(Boolean)
+      .map((d) => serbianDayToNum[d])
+      .filter((d) => d !== undefined)
       .sort((a, b) => a - b);
     if (deliveryDays.length === 0) return null;
     for (const d of deliveryDays) {
