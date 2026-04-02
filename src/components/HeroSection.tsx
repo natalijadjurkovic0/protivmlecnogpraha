@@ -5,7 +5,7 @@ import { CrownDoodle, CloudDoodle, StarDoodle } from "./DoodleOverlays";
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background image */}
+      {/* Background image — full bleed, object-cover */}
       <div className="absolute inset-0">
         <img
           src={heroCow}
@@ -14,10 +14,10 @@ const HeroSection = () => {
           width={1920}
           height={1080}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-transparent to-foreground/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/30 via-transparent to-foreground/50" />
       </div>
 
-      {/* Floating doodles — matching screenshot positions */}
+      {/* Floating doodles */}
       <CrownDoodle className="absolute top-[16%] left-[12%] md:left-[16%] z-20 scale-75 md:scale-100" />
       <StarDoodle className="absolute top-[12%] right-[28%] z-20" />
       <StarDoodle className="absolute top-[40%] left-[5%] z-20 scale-125" />
@@ -30,7 +30,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="font-handwritten text-xl md:text-2xl text-primary mb-2"
+          className="font-handwritten text-xl md:text-2xl text-primary mb-2 drop-shadow-lg"
         >
           ~ od srca do praga ~
         </motion.p>
@@ -41,9 +41,9 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-black text-warm-white leading-none mb-2">
-            Mlečni{" "}
-            <span className="font-handwritten text-primary italic text-7xl md:text-9xl lg:text-[10rem]">
+          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-black text-warm-white leading-none mb-2 hero-text-shadow">
+            Mlecni{" "}
+            <span className="font-handwritten text-primary italic text-7xl md:text-9xl lg:text-[10rem] drop-shadow-lg">
               put
             </span>
           </h1>
@@ -56,10 +56,10 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
           className="mt-4 max-w-xl mx-auto"
         >
-          <p className="font-handwritten text-xl md:text-3xl text-primary leading-relaxed">
+          <p className="font-handwritten text-xl md:text-3xl text-primary leading-relaxed drop-shadow-lg">
             <span className="marker-underline">"Uz pravo mleko nema straha,</span>
             <br />
-            <span className="marker-underline">bežimo od mlečnog praha."</span>
+            <span className="marker-underline">bezimo od mlecnog praha."</span>
           </p>
         </motion.div>
 
@@ -74,13 +74,13 @@ const HeroSection = () => {
             href="/partner"
             className="px-10 py-4 bg-primary text-primary-foreground font-body font-bold text-lg rounded-sm hover:scale-105 transition-transform shadow-lg inline-flex items-center gap-2"
           >
-            Postani Partner <span className="text-xl">🐄</span>
+            Postani Partner <span className="text-xl">&#x1F91D;</span>
           </a>
           <a
             href="#story"
             className="px-10 py-4 border-2 border-foreground text-warm-white font-body font-bold text-lg rounded-sm hover:bg-warm-white hover:text-foreground transition-all inline-flex items-center gap-2"
           >
-            Istraži Priču <span className="text-sm">↓</span>
+            Istrazi Pricu <span className="text-sm">&#x2193;</span>
           </a>
         </motion.div>
       </div>
