@@ -395,34 +395,7 @@ const DispatcherDashboard = () => {
                           Prikaži detalje
                         </button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle className="font-display text-xl">{app.full_name}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-3 font-body text-sm">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="text-muted-foreground">Status:</div>
-                            <div className="font-semibold">{app.status === "approved" ? "Odobren 👑" : "Na čekanju"}</div>
-                            {app.email && <>
-                              <div className="text-muted-foreground">Email:</div>
-                              <div>{app.email}</div>
-                            </>}
-                            <div className="text-muted-foreground">BPG:</div>
-                            <div>{app.bpg}</div>
-                            <div className="text-muted-foreground">JMBG:</div>
-                            <div>{app.jmbg}</div>
-                            <div className="text-muted-foreground">Adresa:</div>
-                            <div>{app.address}</div>
-                            <div className="text-muted-foreground">Kapacitet:</div>
-                            <div className="font-semibold text-primary">{app.capacity_liters_per_day}L/dan</div>
-                          </div>
-                          <div className="pt-3 border-t border-border">
-                            <p className="text-xs text-muted-foreground">
-                              Prijava podneta: {new Date(app.created_at).toLocaleDateString("sr-RS", { day: "numeric", month: "long", year: "numeric" })}
-                            </p>
-                          </div>
-                        </div>
-                      </DialogContent>
+                      <FarmerDetailDialog app={app} />
                     </Dialog>
 
                     {app.status === "pending" && (
