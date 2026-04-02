@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,10 @@ import Footer from "@/components/Footer";
 import PlanSelector, { plans, type Plan } from "@/components/dashboard/PlanSelector";
 import SubscriptionStatus from "@/components/dashboard/SubscriptionStatus";
 import AddOnsSidebar from "@/components/dashboard/AddOnsSidebar";
+import CheckoutModal from "@/components/dashboard/CheckoutModal";
+import ManagePlanModal from "@/components/dashboard/ManagePlanModal";
+import SingleOrderSection from "@/components/dashboard/SingleOrderSection";
+import ProfileAddressCard from "@/components/dashboard/ProfileAddressCard";
 import type { Tables } from "@/integrations/supabase/types";
 import { StarDoodle } from "@/components/DoodleOverlays";
 
@@ -20,6 +24,37 @@ const dayLabels: Record<string, string> = {
   wednesday: "Sre",
   saturday: "Sub",
 };
+
+const MilkSplash = ({ show }: { show: boolean }) => (
+  <AnimatePresence>
+    {show && (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.5 }}
+        className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none"
+      >
+        <div className="text-center">
+          <motion.span
+            animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 0.6 }}
+            className="text-8xl block"
+          >
+            🥛
+          </motion.span>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="font-handwritten text-3xl text-primary mt-4"
+          >
+            Uspešno! 🎉
+          </motion.p>
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
 
 const Dashboard = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -33,13 +68,24 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
+  // Modal states
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutMode, setCheckoutMode] = useState<"plan" | "single" | "change">("plan");
+  const [managePlanOpen, setManagePlanOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
+  const [showPlanSelector, setShowPlanSelector] = useState(false);
+
+  // Single order temp state
+  const [singleOrderLiters, setSingleOrderLiters] = useState(0);
+  const [singleOrderDate, setSingleOrderDate] = useState("");
+
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
+  const fetchData = async () => {
     if (!user) return;
-    Promise.all([
+    const [subRes, ordRes] = await Promise.all([
       supabase
         .from("subscriptions")
         .select("*")
@@ -52,13 +98,32 @@ const Dashboard = () => {
         .eq("user_id", user.id)
         .order("delivery_date", { ascending: false })
         .limit(10),
-    ]).then(([subRes, ordRes]) => {
-      if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0]);
-      if (ordRes.data) setOrders(ordRes.data);
-      setFetching(false);
-    });
+    ]);
+    if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0]);
+    else setSubscription(null);
+    if (ordRes.data) setOrders(ordRes.data);
+    setFetching(false);
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [user]);
 
+  const triggerSplash = () => {
+    setShowSplash(true);
+    setTimeout(() => setShowSplash(false), 1500);
+  };
+
+  // Save address to profile
+  const saveProfile = async (address: string, phone: string) => {
+    if (!user) return;
+    await supabase
+      .from("profiles")
+      .update({ address, phone })
+      .eq("user_id", user.id);
+  };
+
+  // ---- Plan confirm via checkout ----
   const handleSelectPlan = (plan: Plan) => {
     setSelectedPlan(plan.type);
     setSelectedDays([]);
@@ -70,34 +135,85 @@ const Dashboard = () => {
     );
   };
 
-  const handleConfirmPlan = async () => {
+  const handlePlanConfirmClick = () => {
+    setCheckoutMode(showPlanSelector ? "change" : "plan");
+    setCheckoutOpen(true);
+  };
+
+  const handleCheckoutConfirm = async (data: { address: string; phone: string; driverNote: string }) => {
     if (!user || !selectedPlan) return;
     const plan = plans.find((p) => p.type === selectedPlan);
     if (!plan) return;
 
     setLoading(true);
-    const { data, error } = await supabase
-      .from("subscriptions")
-      .insert({
-        user_id: user.id,
-        plan_type: plan.type,
-        weekly_liters: plan.litersPerMonth / 4,
-        delivery_days: plan.type === "probaj" ? ["single"] : selectedDays,
-        price_rsd: plan.priceRsd,
-        status: "active",
-      })
-      .select()
-      .single();
+    await saveProfile(data.address, data.phone);
 
-    if (error) {
-      toast({ title: "Greška", description: error.message, variant: "destructive" });
-    } else {
-      setSubscription(data);
-      toast({ title: "Uspeh! 🎉", description: `Plan "${plan.name}" je aktiviran.` });
+    if (checkoutMode === "change" && subscription) {
+      // Cancel old subscription
+      await supabase
+        .from("subscriptions")
+        .update({ status: "cancelled" })
+        .eq("id", subscription.id);
     }
+
+    if (checkoutMode === "single") {
+      // Create a single order
+      const { error } = await supabase.from("orders").insert({
+        user_id: user.id,
+        delivery_date: singleOrderDate,
+        items: [{ type: "mleko", liters: singleOrderLiters }],
+        total_rsd: singleOrderLiters * 130,
+        status: "scheduled",
+        delivery_address: data.address,
+        driver_note: data.driverNote || null,
+      });
+      if (error) {
+        toast({ title: "Greška", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Naručeno! 🚛", description: `${singleOrderLiters}L za ${singleOrderDate}` });
+        triggerSplash();
+      }
+    } else {
+      // Create subscription
+      const { data: sub, error } = await supabase
+        .from("subscriptions")
+        .insert({
+          user_id: user.id,
+          plan_type: plan.type,
+          weekly_liters: plan.litersPerMonth / 4,
+          delivery_days: plan.type === "probaj" ? ["single"] : selectedDays,
+          price_rsd: plan.priceRsd,
+          status: "active",
+        })
+        .select()
+        .single();
+
+      if (error) {
+        toast({ title: "Greška", description: error.message, variant: "destructive" });
+      } else {
+        setSubscription(sub);
+        toast({ title: "Uspeh! 🎉", description: `Plan "${plan.name}" je aktiviran.` });
+        triggerSplash();
+        setShowPlanSelector(false);
+      }
+    }
+
+    setCheckoutOpen(false);
+    setSelectedPlan(null);
+    setSelectedDays([]);
+    await fetchData();
     setLoading(false);
   };
 
+  // ---- Single order flow ----
+  const handleSingleOrder = (liters: number, date: string) => {
+    setSingleOrderLiters(liters);
+    setSingleOrderDate(date);
+    setCheckoutMode("single");
+    setCheckoutOpen(true);
+  };
+
+  // ---- Manage plan actions ----
   const handlePause = async () => {
     if (!subscription) return;
     setLoading(true);
@@ -108,6 +224,7 @@ const Dashboard = () => {
     if (!error) {
       setSubscription({ ...subscription, status: "paused" });
       toast({ title: "Pauzirano ⏸️", description: "Pretplata je pauzirana." });
+      setManagePlanOpen(false);
     }
     setLoading(false);
   };
@@ -122,8 +239,29 @@ const Dashboard = () => {
     if (!error) {
       setSubscription({ ...subscription, status: "active" });
       toast({ title: "Aktivna! ▶️", description: "Pretplata je ponovo aktivna." });
+      setManagePlanOpen(false);
     }
     setLoading(false);
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!subscription) return;
+    setLoading(true);
+    const { error } = await supabase
+      .from("subscriptions")
+      .update({ status: "cancelled" })
+      .eq("id", subscription.id);
+    if (!error) {
+      setSubscription({ ...subscription, status: "cancelled" });
+      toast({ title: "Otkazano 😢", description: "Pretplata je otkazana." });
+      setManagePlanOpen(false);
+    }
+    setLoading(false);
+  };
+
+  const handleChangePlan = () => {
+    setManagePlanOpen(false);
+    setShowPlanSelector(true);
   };
 
   if (authLoading || fetching) {
@@ -144,7 +282,9 @@ const Dashboard = () => {
     ? plans.find((p) => p.type === subscription.plan_type)
     : null;
 
-  // Calculate next delivery (mock — next matching day from today)
+  const hasActiveSub = subscription && subscription.status !== "cancelled";
+
+  // Next delivery calculation
   const getNextDeliveryDate = () => {
     if (!subscription || subscription.status !== "active") return null;
     const dayMap: Record<string, number> = { monday: 1, wednesday: 3, saturday: 6 };
@@ -155,7 +295,6 @@ const Dashboard = () => {
       .filter(Boolean)
       .sort((a, b) => a - b);
     if (deliveryDays.length === 0) return null;
-
     for (const d of deliveryDays) {
       const diff = d - todayDay;
       if (diff > 0) {
@@ -178,6 +317,7 @@ const Dashboard = () => {
   return (
     <div className="relative min-h-screen bg-background">
       <Navbar />
+      <MilkSplash show={showSplash} />
 
       <div className="container mx-auto px-6 pt-24 pb-16">
         {/* Header */}
@@ -199,18 +339,29 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-8">
-            {subscription && subscription.status !== "cancelled" ? (
+            {/* Section A: Moja Pretplata */}
+            {hasActiveSub && !showPlanSelector ? (
               <>
                 <SubscriptionStatus
                   status={subscription.status}
                   planName={activePlanDetails?.name || subscription.plan_type}
                   deliveryDays={subscription.delivery_days}
-                  onPause={handlePause}
-                  onResume={handleResume}
+                  onPause={() => setManagePlanOpen(true)}
+                  onResume={() => setManagePlanOpen(true)}
                   loading={loading}
                 />
 
-                {/* Next Delivery Card */}
+                {/* Manage Plan button replacing simple pause/resume */}
+                <div className="flex justify-center -mt-4">
+                  <button
+                    onClick={() => setManagePlanOpen(true)}
+                    className="px-6 py-3 bg-foreground text-background font-body font-bold text-sm rounded-xl hover:scale-[1.02] transition-transform shadow-lg"
+                  >
+                    ⚙️ Upravljaj Pretplatom
+                  </button>
+                </div>
+
+                {/* Next Delivery */}
                 {nextDelivery && subscription.status === "active" && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -276,50 +427,6 @@ const Dashboard = () => {
                     ))}
                   </div>
                 </div>
-
-                {/* Order History */}
-                <div className="p-6 rounded-2xl bg-card border-2 border-border">
-                  <h3 className="font-display text-xl font-bold text-foreground mb-4">
-                    Istorija dostava
-                  </h3>
-                  {orders.length === 0 ? (
-                    <p className="font-body text-muted-foreground text-sm">
-                      Još nema dostava. Tvoja prva dostava je na putu! 🚛
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {orders.map((order) => (
-                        <div
-                          key={order.id}
-                          className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="font-handwritten text-xl text-primary">
-                              {order.status === "delivered" ? "✓" : order.status === "scheduled" ? "📦" : "⏳"}
-                            </span>
-                            <div>
-                              <p className="font-body text-sm font-semibold text-foreground">
-                                {new Date(order.delivery_date).toLocaleDateString("sr-Latn-RS", {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                })}
-                              </p>
-                              <p className="font-body text-xs text-muted-foreground capitalize">
-                                {order.status}
-                              </p>
-                            </div>
-                          </div>
-                          {order.total_rsd && (
-                            <span className="font-body text-sm font-bold text-foreground">
-                              {order.total_rsd} RSD
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </>
             ) : (
               <PlanSelector
@@ -327,14 +434,73 @@ const Dashboard = () => {
                 selectedDays={selectedDays}
                 onSelectPlan={handleSelectPlan}
                 onToggleDay={handleToggleDay}
-                onConfirm={handleConfirmPlan}
+                onConfirm={handlePlanConfirmClick}
                 loading={loading}
               />
             )}
+
+            {showPlanSelector && hasActiveSub && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => { setShowPlanSelector(false); setSelectedPlan(null); }}
+                  className="text-sm font-body text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← Nazad na pregled
+                </button>
+              </div>
+            )}
+
+            {/* Section B: Single Orders — always visible */}
+            <SingleOrderSection onOrder={handleSingleOrder} loading={loading} />
+
+            {/* Order History */}
+            <div className="p-6 rounded-2xl bg-card border-2 border-border">
+              <h3 className="font-display text-xl font-bold text-foreground mb-4">
+                Istorija dostava
+              </h3>
+              {orders.length === 0 ? (
+                <p className="font-body text-muted-foreground text-sm">
+                  Još nema dostava. Tvoja prva dostava je na putu! 🚛
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {orders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="font-handwritten text-xl text-primary">
+                          {order.status === "delivered" ? "✓" : order.status === "scheduled" ? "📦" : "⏳"}
+                        </span>
+                        <div>
+                          <p className="font-body text-sm font-semibold text-foreground">
+                            {new Date(order.delivery_date).toLocaleDateString("sr-Latn-RS", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                          <p className="font-body text-xs text-muted-foreground capitalize">
+                            {order.status}
+                          </p>
+                        </div>
+                      </div>
+                      {order.total_rsd && (
+                        <span className="font-body text-sm font-bold text-foreground">
+                          {order.total_rsd} RSD
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
+            <ProfileAddressCard />
             <AddOnsSidebar />
             <div className="p-6 rounded-2xl bg-card border-2 border-dashed border-primary/20 text-center">
               <StarDoodle className="mx-auto mb-2" />
@@ -346,6 +512,26 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <CheckoutModal
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        onConfirm={handleCheckoutConfirm}
+        loading={loading}
+        title={checkoutMode === "single" ? "Jednokratna Porudžbina" : "Potvrdi Plan"}
+      />
+
+      <ManagePlanModal
+        open={managePlanOpen}
+        onClose={() => setManagePlanOpen(false)}
+        onPause={handlePause}
+        onResume={handleResume}
+        onChangePlan={handleChangePlan}
+        onCancel={handleCancelSubscription}
+        loading={loading}
+        isPaused={subscription?.status === "paused"}
+      />
 
       <Footer />
     </div>
