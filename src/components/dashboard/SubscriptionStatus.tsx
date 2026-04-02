@@ -64,7 +64,7 @@ const SubscriptionStatus = ({
                   key={day}
                   className="px-4 py-2 rounded-lg bg-primary/10 text-foreground font-body text-sm font-medium"
                 >
-                  {dayLabels[day] || day}
+                  {DAY_LABELS_SR[day] || day}
                 </span>
               ))}
             </div>
