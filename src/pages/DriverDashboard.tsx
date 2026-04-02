@@ -25,6 +25,9 @@ interface RouteStop {
   address: string;
   liters: number;
   time: string;
+  user_id?: string;
+  subscription_id?: string;
+  order_id?: string;
 }
 
 const DriverDashboard = () => {
