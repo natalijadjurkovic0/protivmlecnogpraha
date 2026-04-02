@@ -15,15 +15,10 @@ import SingleOrderSection from "@/components/dashboard/SingleOrderSection";
 import ProfileAddressCard from "@/components/dashboard/ProfileAddressCard";
 import type { Tables } from "@/integrations/supabase/types";
 import { StarDoodle } from "@/components/DoodleOverlays";
+import { DAY_SHORT_SR, DAY_LABELS_SR, formatDisplayDate } from "@/lib/dateHelpers";
 
 type Subscription = Tables<"subscriptions">;
 type Order = Tables<"orders">;
-
-const dayLabels: Record<string, string> = {
-  monday: "Pon",
-  wednesday: "Sre",
-  saturday: "Sub",
-};
 
 const MilkSplash = ({ show }: { show: boolean }) => (
   <AnimatePresence>
@@ -422,7 +417,7 @@ const Dashboard = () => {
                         key={day}
                         className="px-3 py-1 rounded-full bg-primary/10 text-foreground font-body text-xs font-medium"
                       >
-                        {dayLabels[day] || day}
+                        {DAY_SHORT_SR[day] || day}
                       </span>
                     ))}
                   </div>
@@ -475,11 +470,7 @@ const Dashboard = () => {
                         </span>
                         <div>
                           <p className="font-body text-sm font-semibold text-foreground">
-                            {new Date(order.delivery_date).toLocaleDateString("sr-Latn-RS", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
+                            {formatDisplayDate(order.delivery_date, "kupac")}
                           </p>
                           <p className="font-body text-xs text-muted-foreground capitalize">
                             {order.status}

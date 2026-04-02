@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { DAY_LABELS_SR } from "@/lib/dateHelpers";
 
 interface SubscriptionStatusProps {
   status: "active" | "paused" | "cancelled";
@@ -8,12 +9,6 @@ interface SubscriptionStatusProps {
   onResume: () => void;
   loading: boolean;
 }
-
-const dayLabels: Record<string, string> = {
-  monday: "Ponedeljak",
-  wednesday: "Sreda",
-  saturday: "Subota",
-};
 
 const GoneFishingDoodle = () => (
   <motion.svg
@@ -69,7 +64,7 @@ const SubscriptionStatus = ({
                   key={day}
                   className="px-4 py-2 rounded-lg bg-primary/10 text-foreground font-body text-sm font-medium"
                 >
-                  {dayLabels[day] || day}
+                  {DAY_LABELS_SR[day] || day}
                 </span>
               ))}
             </div>

@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfToday, isSameDay } from "date-fns";
-import { sr } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +10,7 @@ import WeeklyPlanner from "@/components/driver/WeeklyPlanner";
 import DayOffDoodle from "@/components/driver/DayOffDoodle";
 import RouteLoadingAnimation from "@/components/driver/RouteLoadingAnimation";
 import RouteTimeline from "@/components/driver/RouteTimeline";
+import { formatDisplayDate } from "@/lib/dateHelpers";
 
 const AI_ROUTE_URL = "https://cresyl-malisa-pseudoambidextrously.ngrok-free.dev/api/generate-route";
 
@@ -62,7 +62,7 @@ const DriverDashboard = () => {
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
   const selectedDateLabel = isSameDay(selectedDate, startOfToday())
     ? "danas"
-    : format(selectedDate, "EEEE, d. MMM", { locale: sr });
+    : formatDisplayDate(selectedDate, "vozac");
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);

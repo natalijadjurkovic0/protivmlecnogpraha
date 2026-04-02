@@ -38,6 +38,48 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_history: {
+        Row: {
+          address: string | null
+          created_at: string
+          driver_id: string | null
+          exact_date: string
+          id: string
+          liters: number
+          order_id: string | null
+          status: string
+          subscription_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          driver_id?: string | null
+          exact_date: string
+          id?: string
+          liters?: number
+          order_id?: string | null
+          status?: string
+          subscription_id?: string | null
+          type?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          driver_id?: string | null
+          exact_date?: string
+          id?: string
+          liters?: number
+          order_id?: string | null
+          status?: string
+          subscription_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       driver_schedules: {
         Row: {
           assigned_by: string
