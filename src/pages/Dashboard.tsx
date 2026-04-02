@@ -20,13 +20,9 @@ type Subscription = Tables<"subscriptions">;
 type Order = Tables<"orders">;
 
 const dayLabels: Record<string, string> = {
-  Ponedeljak: "Pon",
-  Utorak: "Uto",
-  Sreda: "Sre",
-  Četvrtak: "Čet",
-  Petak: "Pet",
-  Subota: "Sub",
-  Nedelja: "Ned",
+  monday: "Pon",
+  wednesday: "Sre",
+  saturday: "Sub",
 };
 
 const MilkSplash = ({ show }: { show: boolean }) => (
@@ -67,7 +63,6 @@ const Dashboard = () => {
 
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [deliveryHistory, setDeliveryHistory] = useState<any[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -90,7 +85,7 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     if (!user) return;
-    const [subRes, ordRes, histRes] = await Promise.all([
+    const [subRes, ordRes] = await Promise.all([
       supabase
         .from("subscriptions")
         .select("*")
@@ -103,17 +98,10 @@ const Dashboard = () => {
         .eq("user_id", user.id)
         .order("delivery_date", { ascending: false })
         .limit(10),
-      supabase
-        .from("delivery_history")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("exact_date", { ascending: false })
-        .limit(20),
     ]);
     if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0]);
     else setSubscription(null);
     if (ordRes.data) setOrders(ordRes.data);
-    if (histRes.data) setDeliveryHistory(histRes.data);
     setFetching(false);
   };
 
@@ -299,15 +287,12 @@ const Dashboard = () => {
   // Next delivery calculation
   const getNextDeliveryDate = () => {
     if (!subscription || subscription.status !== "active") return null;
-    const serbianDayToNum: Record<string, number> = {
-      Ponedeljak: 1, Utorak: 2, Sreda: 3, Četvrtak: 4,
-      Petak: 5, Subota: 6, Nedelja: 0,
-    };
+    const dayMap: Record<string, number> = { monday: 1, wednesday: 3, saturday: 6 };
     const today = new Date();
     const todayDay = today.getDay();
     const deliveryDays = subscription.delivery_days
-      .map((d) => serbianDayToNum[d])
-      .filter((d) => d !== undefined)
+      .map((d) => dayMap[d])
+      .filter(Boolean)
       .sort((a, b) => a - b);
     if (deliveryDays.length === 0) return null;
     for (const d of deliveryDays) {
@@ -468,44 +453,46 @@ const Dashboard = () => {
             {/* Section B: Single Orders — always visible */}
             <SingleOrderSection onOrder={handleSingleOrder} loading={loading} />
 
-            {/* Moja Istorija - from delivery_history */}
+            {/* Order History */}
             <div className="p-6 rounded-2xl bg-card border-2 border-border">
-              <h3 className="font-display text-xl font-bold text-foreground mb-1">
-                🧾 Moja Istorija
+              <h3 className="font-display text-xl font-bold text-foreground mb-4">
+                Istorija dostava
               </h3>
-              <p className="font-handwritten text-sm text-primary mb-4">~ tvoj račun ~</p>
-              {deliveryHistory.length === 0 ? (
+              {orders.length === 0 ? (
                 <p className="font-body text-muted-foreground text-sm">
-                  Još nema dostava u istoriji. Tvoja prva dostava je na putu! 🚛
+                  Još nema dostava. Tvoja prva dostava je na putu! 🚛
                 </p>
               ) : (
-                <div className="space-y-2">
-                  {deliveryHistory.map((item) => {
-                    const d = new Date(item.exact_date + "T00:00:00");
-                    const dayName = d.toLocaleDateString("sr-Latn-RS", { weekday: "long" });
-                    const dateStr = d.toLocaleDateString("sr-Latn-RS", { day: "2-digit", month: "2-digit", year: "numeric" });
-                    return (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-dashed border-border"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="font-handwritten text-lg text-primary">
-                            {item.status === "delivered" ? "✓" : "⏳"}
-                          </span>
-                          <div>
-                            <p className="font-body text-sm font-semibold text-foreground capitalize">
-                              Dostavljeno: {dayName}, {dateStr}
-                            </p>
-                            <p className="font-body text-xs text-muted-foreground">
-                              {item.liters}L · {item.type === "subscription_fulfillment" ? "Pretplata" : "Jednokratna"}
-                            </p>
-                          </div>
+                <div className="space-y-3">
+                  {orders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="font-handwritten text-xl text-primary">
+                          {order.status === "delivered" ? "✓" : order.status === "scheduled" ? "📦" : "⏳"}
+                        </span>
+                        <div>
+                          <p className="font-body text-sm font-semibold text-foreground">
+                            {new Date(order.delivery_date).toLocaleDateString("sr-Latn-RS", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                          <p className="font-body text-xs text-muted-foreground capitalize">
+                            {order.status}
+                          </p>
                         </div>
-                        <span className="font-handwritten text-sm text-primary">🥛</span>
                       </div>
-                    );
-                  })}
+                      {order.total_rsd && (
+                        <span className="font-body text-sm font-bold text-foreground">
+                          {order.total_rsd} RSD
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

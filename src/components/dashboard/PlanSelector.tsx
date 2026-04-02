@@ -55,13 +55,9 @@ const plans: Plan[] = [
 ];
 
 const dayOptions = [
-  { label: "Pon", value: "Ponedeljak" },
-  { label: "Uto", value: "Utorak" },
-  { label: "Sre", value: "Sreda" },
-  { label: "Čet", value: "Četvrtak" },
-  { label: "Pet", value: "Petak" },
-  { label: "Sub", value: "Subota" },
-  { label: "Ned", value: "Nedelja" },
+  { label: "Pon", value: "monday" },
+  { label: "Sre", value: "wednesday" },
+  { label: "Sub", value: "saturday" },
 ];
 
 interface PlanSelectorProps {

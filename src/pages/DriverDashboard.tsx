@@ -15,8 +15,8 @@ import RouteTimeline from "@/components/driver/RouteTimeline";
 const AI_ROUTE_URL = "https://cresyl-malisa-pseudoambidextrously.ngrok-free.dev/api/generate-route";
 
 const DAY_MAP: Record<number, string> = {
-  0: "Nedelja", 1: "Ponedeljak", 2: "Utorak", 3: "Sreda",
-  4: "Četvrtak", 5: "Petak", 6: "Subota",
+  0: "sunday", 1: "monday", 2: "tuesday", 3: "wednesday",
+  4: "thursday", 5: "friday", 6: "saturday",
 };
 
 interface RouteStop {
@@ -25,9 +25,6 @@ interface RouteStop {
   address: string;
   liters: number;
   time: string;
-  user_id?: string;
-  subscription_id?: string;
-  order_id?: string;
 }
 
 const DriverDashboard = () => {
@@ -159,41 +156,14 @@ const DriverDashboard = () => {
     }
   };
 
-  const toggleStopComplete = async (index: number) => {
-    const stop = route[index];
-    const wasCompleted = completedStops.has(index);
-
+  const toggleStopComplete = (index: number) => {
     setCompletedStops((prev) => {
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
       else next.add(index);
       return next;
     });
-
-    // Save to delivery_history when marking as completed (not when undoing)
-    if (!wasCompleted && stop && user && !isPickup(stop.type)) {
-      const { error } = await supabase.from("delivery_history").insert({
-        user_id: stop.user_id || user.id,
-        driver_id: user.id,
-        exact_date: selectedDateStr,
-        status: "delivered",
-        liters: stop.liters || 0,
-        type: stop.subscription_id ? "subscription_fulfillment" : "single_order",
-        subscription_id: stop.subscription_id || null,
-        order_id: stop.order_id || null,
-        address: stop.address || null,
-      });
-      if (error) {
-        console.error("Failed to save delivery history:", error);
-        toast({ title: "Greška", description: "Nije sačuvano u istoriju.", variant: "destructive" });
-      }
-    }
   };
-
-  const isPickup = (type: string) =>
-    type?.toLowerCase().includes("pickup") ||
-    type?.toLowerCase().includes("farmer") ||
-    type?.toLowerCase().includes("preuzimanje");
 
   if (authLoading || loading) {
     return (
