@@ -143,7 +143,7 @@ const Auth = () => {
             <p className="text-center mt-6 font-body text-warm-white/60 text-sm">
               {isLogin ? "Nemate nalog?" : "Već imate nalog?"}{" "}
               <button
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => setSearchParams(isLogin ? { mode: "signup" } : {})}
                 className="text-primary font-semibold hover:underline"
               >
                 {isLogin ? "Registrujte se" : "Prijavite se"}
