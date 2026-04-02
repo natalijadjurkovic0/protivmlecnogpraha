@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+
+const AI_ROUTE_URL = "https://cresyl-malisa-pseudoambidextrously.ngrok-free.dev/api/generate-route";
 
 const DAYS_OF_WEEK = [
   { label: "Pon", full: "Ponedeljak", value: "monday" },
@@ -15,13 +18,23 @@ const DAYS_OF_WEEK = [
   { label: "Ned", full: "Nedelja", value: "sunday" },
 ];
 
+interface RouteStop {
+  type: string;
+  name: string;
+  address: string;
+  liters: number;
+  time: string;
+}
+
 const DriverDashboard = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [scheduledDays, setScheduledDays] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [routeGenerated, setRouteGenerated] = useState(false);
+  const [route, setRoute] = useState<RouteStop[]>([]);
+  const [completedStops, setCompletedStops] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -39,13 +52,80 @@ const DriverDashboard = () => {
       });
   }, [user]);
 
-  const handleGenerateRoute = () => {
+  const handleGenerateRoute = async () => {
+    if (!user) return;
     setGenerating(true);
-    setRouteGenerated(false);
-    setTimeout(() => {
+    setRoute([]);
+    setCompletedStops(new Set());
+
+    try {
+      // Fetch supplies (approved partner applications)
+      const { data: supplies, error: supErr } = await supabase
+        .from("partner_applications")
+        .select("*")
+        .eq("status", "approved");
+
+      if (supErr) console.error("Supplies fetch error:", supErr);
+
+      // Fetch active orders/subscriptions
+      const { data: orders, error: ordErr } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("status", "active");
+
+      if (ordErr) console.error("Orders fetch error:", ordErr);
+
+      const payload = {
+        driver_id: user.id,
+        supplies: (supplies || []).map((s) => ({
+          id: s.id,
+          name: s.full_name,
+          address: s.address,
+          capacity: s.capacity_liters_per_day,
+        })),
+        orders: (orders || []).map((o) => ({
+          id: o.id,
+          user_id: o.user_id,
+          plan_type: o.plan_type,
+          weekly_liters: o.weekly_liters,
+          delivery_days: o.delivery_days,
+        })),
+      };
+
+      console.log("Sending route payload:", payload);
+
+      const res = await fetch(AI_ROUTE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const data = await res.json();
+      console.log("Route response:", data);
+
+      if (data.status === "success" && Array.isArray(data.route)) {
+        setRoute(data.route);
+        toast({ title: "Ruta generisana! 🗺️", description: `${data.route.length} stanica na današnjoj ruti.` });
+      } else {
+        throw new Error(data.message || "Nepoznat odgovor servera");
+      }
+    } catch (err: any) {
+      console.error("Route generation failed:", err);
+      toast({ title: "Greška", description: err.message || "Nije moguće generisati rutu.", variant: "destructive" });
+    } finally {
       setGenerating(false);
-      setRouteGenerated(true);
-    }, 3000);
+    }
+  };
+
+  const toggleStopComplete = (index: number) => {
+    setCompletedStops((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
   };
 
   if (authLoading || loading) {
@@ -57,6 +137,8 @@ const DriverDashboard = () => {
       </div>
     );
   }
+
+  const isPickup = (type: string) => type?.toLowerCase().includes("pickup") || type?.toLowerCase().includes("farmer") || type?.toLowerCase().includes("preuzimanje");
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
@@ -141,11 +223,12 @@ const DriverDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               className="p-8 rounded-2xl bg-card border-2 border-primary/20 text-center mb-8"
             >
-              {/* Animated truck on road */}
               <div className="relative h-24 mb-4 overflow-hidden">
+                {/* Winding road */}
                 <svg width="100%" height="80" viewBox="0 0 300 80" fill="none" className="absolute bottom-0">
                   <path d="M0 60 Q75 30 150 60 Q225 90 300 60" stroke="hsl(45, 90%, 63%)" strokeWidth="3" strokeDasharray="8 6" fill="none" />
                 </svg>
+                {/* Animated truck */}
                 <motion.div
                   animate={{ x: [0, 260] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -153,40 +236,174 @@ const DriverDashboard = () => {
                 >
                   🚛
                 </motion.div>
+                {/* Spinning milk bottle */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  className="absolute top-0 right-4 text-2xl"
+                >
+                  🥛
+                </motion.div>
               </div>
-              <p className="font-handwritten text-xl text-primary">Ruta se optimizuje uz pomoć AI modela...</p>
+              <p className="font-handwritten text-xl text-primary">AI optimizuje tvoju rutu...</p>
+              <p className="font-body text-xs text-muted-foreground mt-1">Prikupljam podatke o farmerima i narudžbinama</p>
               <motion.div
                 animate={{ width: ["0%", "100%"] }}
-                transition={{ duration: 3, ease: "easeInOut" }}
+                transition={{ duration: 8, ease: "easeInOut" }}
                 className="h-1.5 bg-primary rounded-full mt-4"
               />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Route Generated Success */}
+        {/* Route Timeline */}
         <AnimatePresence>
-          {routeGenerated && !generating && (
+          {route.length > 0 && !generating && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="p-8 rounded-2xl bg-secondary/10 border-2 border-secondary/30 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             >
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 200 }}
-              >
-                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" className="mx-auto mb-4">
-                  <circle cx="30" cy="30" r="26" stroke="hsl(120, 25%, 30%)" strokeWidth="3" strokeDasharray="6 4" fill="hsl(120, 25%, 30%)" fillOpacity="0.1" />
-                  <path d="M18 30 L26 38 L42 22" stroke="hsl(120, 25%, 30%)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                </svg>
-              </motion.div>
-              <h3 className="font-display text-xl font-bold text-foreground">Ruta je spremna!</h3>
-              <p className="font-handwritten text-lg text-secondary mt-2">AI optimizacija završena</p>
-              <p className="font-body text-sm text-muted-foreground mt-4">
-                Funkcionalnost će uskoro biti dostupna sa pravim podacima o dostavi.
-              </p>
+              {/* Route header */}
+              <div className="text-center mb-6">
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
+                  <svg width="50" height="50" viewBox="0 0 50 50" fill="none" className="mx-auto mb-2">
+                    <circle cx="25" cy="25" r="22" stroke="hsl(120, 25%, 30%)" strokeWidth="2.5" strokeDasharray="6 4" fill="hsl(120, 25%, 30%)" fillOpacity="0.1" />
+                    <path d="M15 25 L22 32 L35 19" stroke="hsl(120, 25%, 30%)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </svg>
+                </motion.div>
+                <h3 className="font-display text-xl font-bold text-foreground">Ruta je spremna!</h3>
+                <p className="font-handwritten text-lg text-primary">~ {route.length} stanica danas ~</p>
+                <p className="font-body text-xs text-muted-foreground mt-1">
+                  {completedStops.size}/{route.length} završeno
+                </p>
+              </div>
+
+              {/* Vertical timeline */}
+              <div className="relative pl-8">
+                {/* Winding road line */}
+                <div className="absolute left-3 top-0 bottom-0 w-0.5">
+                  <svg width="6" height="100%" className="absolute left-[-2px]" preserveAspectRatio="none">
+                    <line x1="3" y1="0" x2="3" y2="100%" stroke="hsl(45, 90%, 63%)" strokeWidth="3" strokeDasharray="8 6" />
+                  </svg>
+                </div>
+
+                {route.map((stop, i) => {
+                  const pickup = isPickup(stop.type);
+                  const completed = completedStops.has(i);
+
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.12 }}
+                      className="relative mb-6 last:mb-0"
+                    >
+                      {/* Timeline dot */}
+                      <div className="absolute -left-5 top-4">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                          <circle
+                            cx="11" cy="11" r="9"
+                            stroke={pickup ? "hsl(120, 40%, 45%)" : "hsl(200, 70%, 50%)"}
+                            strokeWidth="2.5"
+                            strokeDasharray="4 3"
+                            fill={completed ? (pickup ? "hsl(120, 40%, 45%)" : "hsl(200, 70%, 50%)") : "hsl(var(--background))"}
+                            fillOpacity={completed ? 0.3 : 1}
+                          />
+                          {completed && (
+                            <path d="M7 11 L10 14 L15 8" stroke={pickup ? "hsl(120, 40%, 45%)" : "hsl(200, 70%, 50%)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                          )}
+                        </svg>
+                      </div>
+
+                      {/* Stop card */}
+                      <div
+                        className={`p-4 rounded-2xl border-2 transition-all ${
+                          completed
+                            ? "opacity-60 border-muted bg-muted/20"
+                            : pickup
+                            ? "border-[hsl(120,40%,45%)]/40 bg-[hsl(120,40%,45%)]/5"
+                            : "border-[hsl(200,70%,50%)]/40 bg-[hsl(200,70%,50%)]/5"
+                        }`}
+                      >
+                        {/* Type badge + time */}
+                        <div className="flex items-center justify-between mb-2">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-body text-xs font-bold border ${
+                              pickup
+                                ? "border-[hsl(120,40%,45%)]/50 text-[hsl(120,40%,45%)]"
+                                : "border-[hsl(200,70%,50%)]/50 text-[hsl(200,70%,50%)]"
+                            }`}
+                          >
+                            {pickup ? "🌾 Preuzimanje" : "🏠 Dostava"}
+                          </span>
+                          <span className="font-body text-sm font-bold text-foreground">{stop.time}</span>
+                        </div>
+
+                        {/* Name */}
+                        <h4 className={`font-display text-base font-bold text-foreground ${completed ? "line-through decoration-2 decoration-primary" : ""}`}>
+                          {stop.name}
+                        </h4>
+
+                        {/* Address */}
+                        <p className="font-body text-xs text-muted-foreground mt-0.5">{stop.address}</p>
+
+                        {/* Liters + action */}
+                        <div className="flex items-center justify-between mt-3">
+                          <span className="font-handwritten text-lg text-primary">
+                            {stop.liters}L 🥛
+                          </span>
+                          <button
+                            onClick={() => toggleStopComplete(i)}
+                            className={`px-3 py-1.5 rounded-xl font-body text-xs font-bold border-2 transition-all ${
+                              completed
+                                ? "border-muted text-muted-foreground bg-muted/30 hover:bg-muted/50"
+                                : "border-secondary/50 text-secondary bg-secondary/10 hover:bg-secondary/20"
+                            }`}
+                          >
+                            {completed ? "↩ Vrati" : "✓ Završeno"}
+                          </button>
+                        </div>
+
+                        {/* Google Maps link */}
+                        {!completed && stop.address && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.address)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 mt-2 font-body text-xs text-primary hover:underline"
+                          >
+                            📍 Otvori u Google Maps
+                          </a>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* All done celebration */}
+              {completedStops.size === route.length && route.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mt-8 p-6 rounded-2xl bg-secondary/10 border-2 border-secondary/30 text-center"
+                >
+                  <motion.p
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 0.5, repeat: 3 }}
+                    className="text-4xl mb-2"
+                  >
+                    🎉
+                  </motion.p>
+                  <h3 className="font-display text-xl font-bold text-foreground">Sve isporuke završene!</h3>
+                  <p className="font-handwritten text-lg text-secondary mt-1">Odlično obavljen posao 🚛✨</p>
+                </motion.div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
