@@ -1,41 +1,39 @@
 
 
-## Plan: Čuvanje dnevne ponude mlekara u bazi
+## Plan: Uključivanje adresa kupaca u generisanje rute
 
 ### Problem
-Mlekar unosi količine mleka po danima na svom dashboardu, ali podaci se ne čuvaju — ostaju samo u memoriji i gube se pri osvežavanju.
+Kada vozač generiše rutu, backendu se šalju podaci o pretplatama (subscriptions) ali **bez adresa kupaca**. Adrese se nalaze u `profiles` tabeli, a trenutni kod ih ne povlači. Zato AI backend nema informaciju gde treba dostaviti mleko.
+
+Takođe, `orders` tabela je prazna jer nijedan kupac još nije koristio jednokratnu narudžbinu — to je normalno. Dispečer panel prikazuje podatke iz `subscriptions` tabele (ne iz `orders`).
 
 ### Rešenje
 
-#### 1. Nova tabela `farmer_daily_offers`
-Kreirati tabelu koja čuva koliko litara mlekar nudi svakog dana:
+#### Izmena: `src/pages/DriverDashboard.tsx`
 
-| Kolona | Tip | Opis |
-|--------|-----|------|
-| id | uuid | PK |
-| user_id | uuid | Mlekarov ID |
-| day_of_week | text | monday, tuesday, ... |
-| liters | numeric | Količina litara |
-| created_at | timestamptz | Datum kreiranja |
-| updated_at | timestamptz | Datum ažuriranja |
+U `handleGenerateRoute` funkciji, nakon što se povuku pretplate i single orders, dodati:
 
-Unique constraint na `(user_id, day_of_week)` — jedan red po danu po mlekaru.
+1. **Fetch profila kupaca** — za svaki `user_id` iz pretplata i single orders, povući adresu iz `profiles` tabele
+2. **Obogatiti payload** — svakoj pretplati i narudžbini dodati `delivery_address` iz profila (ili iz `orders.delivery_address` za single orders koji je već imaju)
 
-#### 2. RLS politike
-- Mlekar može da čita/upisuje/ažurira svoje redove (`auth.uid() = user_id`)
-- Dispečer može da čita sve redove (za prikaz u detaljima farmera)
+Konkretno:
+- Nakon fetch-a `subs` i `singleOrders`, prikupiti sve jedinstvene `user_id` vrednosti
+- Fetch `profiles` za te `user_id` vrednosti: `supabase.from("profiles").select("user_id, address, display_name, phone").in("user_id", userIds)`
+- Mapirati adrese u payload za subscriptions: dodati `delivery_address` i `customer_name` polja
+- Single orders već imaju `delivery_address` kolonu, ali dodati i `customer_name` iz profila
 
-#### 3. Ažuriranje `MlekarDashboard.tsx`
-- Pri učitavanju: fetch postojećih ponuda iz `farmer_daily_offers`
-- `handleSave`: upsert (INSERT ... ON CONFLICT UPDATE) za svaki dan
-- Podaci se prikazuju odmah pri otvaranju dashboarda
+#### RLS — vozač mora moći da čita profile kupaca
 
-#### 4. Ažuriranje `DispatcherDashboard.tsx`
-- U popup-u detalja farmera: fetch iz `farmer_daily_offers` gde je `user_id` = farmerov `user_id`
-- Prikazati tabelu dan → litara
+Trenutno `profiles` tabela ima SELECT politiku samo za sopstveni profil i za dispečere. Vozač ne može da čita tuđe profile.
+
+**Nova RLS politika**: Dozvoliti vozačima da čitaju sve profile (potrebno za adrese dostave):
+```sql
+CREATE POLICY "Drivers can view all profiles"
+ON public.profiles FOR SELECT TO authenticated
+USING (has_role(auth.uid(), 'vozac'::app_role));
+```
 
 ### Fajlovi za izmenu
-- **Nova migracija**: kreiranje tabele `farmer_daily_offers` + RLS
-- **`src/pages/MlekarDashboard.tsx`**: fetch + upsert logika
-- **`src/pages/DispatcherDashboard.tsx`**: fetch ponuda u detaljima farmera
+- **Nova migracija**: RLS politika za vozače na `profiles` tabeli
+- **`src/pages/DriverDashboard.tsx`**: fetch profila i obogaćivanje payload-a sa adresama
 
