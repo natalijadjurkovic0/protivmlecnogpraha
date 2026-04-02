@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { DAY_LABELS_SR } from "@/lib/dateHelpers";
 
 interface SubscriptionStatusProps {
   status: "active" | "paused" | "cancelled";
@@ -8,12 +9,6 @@ interface SubscriptionStatusProps {
   onResume: () => void;
   loading: boolean;
 }
-
-const dayLabels: Record<string, string> = {
-  monday: "Ponedeljak",
-  wednesday: "Sreda",
-  saturday: "Subota",
-};
 
 const GoneFishingDoodle = () => (
   <motion.svg
