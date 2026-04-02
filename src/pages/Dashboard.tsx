@@ -15,15 +15,10 @@ import SingleOrderSection from "@/components/dashboard/SingleOrderSection";
 import ProfileAddressCard from "@/components/dashboard/ProfileAddressCard";
 import type { Tables } from "@/integrations/supabase/types";
 import { StarDoodle } from "@/components/DoodleOverlays";
+import { DAY_SHORT_SR, DAY_LABELS_SR, formatDisplayDate } from "@/lib/dateHelpers";
 
 type Subscription = Tables<"subscriptions">;
 type Order = Tables<"orders">;
-
-const dayLabels: Record<string, string> = {
-  monday: "Pon",
-  wednesday: "Sre",
-  saturday: "Sub",
-};
 
 const MilkSplash = ({ show }: { show: boolean }) => (
   <AnimatePresence>
