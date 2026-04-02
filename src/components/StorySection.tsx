@@ -140,7 +140,7 @@ const StorySection = () => {
               { num: "50+", label: "Farmera" },
               { num: "1200+", label: "Kupaca" },
               { num: "3000+", label: "Litara dnevno" },
-              { num: "​10+", label: "Sela" },
+              { num: "10+", label: "Sela" },
             ].map((stat) => (
               <div key={stat.label}>
                 <p className="font-display text-4xl md:text-5xl font-black text-primary">{stat.num}</p>
