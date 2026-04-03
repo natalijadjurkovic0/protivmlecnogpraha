@@ -13,8 +13,8 @@ const Index = () => {
       <WindingRoad />
       <FloatingDoodles />
       <HeroSection />
-      <DemandForecast />
       <StorySection />
+      <DemandForecast />
       <Footer />
     </div>
   );
