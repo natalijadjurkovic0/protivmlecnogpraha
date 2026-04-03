@@ -49,7 +49,11 @@ const DemandForecast = () => {
 
         if (res.ok) {
           const json = await res.json();
-          setData(json);
+          // Handle nested response (e.g. { prediction: { weekly_forecast, ... } })
+          const payload = json.prediction || json;
+          if (payload.weekly_forecast && Array.isArray(payload.weekly_forecast)) {
+            setData(payload);
+          }
         }
       } catch (e) {
         console.error("Demand prediction error:", e);
