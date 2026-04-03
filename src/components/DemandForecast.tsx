@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { CrownDoodle, StarDoodle, CloudDoodle, HeartDoodle } from "./DoodleOverlays";
 
 interface ForecastDay {
   day: string;
@@ -53,7 +54,7 @@ const DemandForecast = () => {
 
   if (loading) {
     return (
-      <section className="py-20 md:py-32 bg-muted">
+      <section className="py-20 md:py-32 bg-background relative overflow-hidden">
         <div className="container mx-auto px-6 text-center">
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-64 bg-border rounded mx-auto" />
@@ -69,8 +70,18 @@ const DemandForecast = () => {
   const maxLiters = Math.max(...data.weekly_forecast.map((d) => d.liters), 1);
 
   return (
-    <section className="py-20 md:py-32 bg-muted">
-      <div className="container mx-auto px-6">
+    <section className="py-20 md:py-32 bg-background relative overflow-hidden">
+      {/* Animated doodle stickers */}
+      <div className="absolute inset-0 pointer-events-none">
+        <CrownDoodle className="absolute top-6 left-[5%] scale-75 opacity-30" />
+        <StarDoodle className="absolute top-10 right-[6%] scale-110 opacity-25" />
+        <CloudDoodle className="absolute bottom-8 left-[8%] opacity-20" />
+        <HeartDoodle className="absolute bottom-12 right-[4%] scale-90 opacity-25" />
+        <StarDoodle className="absolute top-[40%] left-[2%] scale-75 opacity-20" />
+        <CloudDoodle className="absolute top-[30%] right-[3%] scale-75 opacity-15" />
+      </div>
+
+      <div className="container mx-auto px-6 relative z-[1]">
         <div className="text-center mb-12">
           <span className="font-handwritten text-2xl text-primary">
             ~ predikcija ~
@@ -81,7 +92,7 @@ const DemandForecast = () => {
         </div>
 
         {/* Bar chart */}
-        <div className="max-w-2xl mx-auto bg-card rounded-2xl shadow-xl p-6 md:p-10 border border-border">
+        <div className="max-w-2xl mx-auto bg-card rounded-2xl shadow-xl p-6 md:p-10 border-2 border-border relative">
           <div className="flex items-end justify-between gap-3 md:gap-6 h-56 md:h-64">
             {data.weekly_forecast.map((item, i) => {
               const pct = (item.liters / maxLiters) * 100;

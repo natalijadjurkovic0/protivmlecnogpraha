@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { CrownDoodle, StarDoodle, CloudDoodle, HeartDoodle } from "../DoodleOverlays";
 
 interface ForecastDay {
   day: string;
@@ -83,53 +84,62 @@ const FarmerDemandForecast = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-2xl bg-card border-2 border-border"
+        className="p-6 rounded-2xl bg-card border-2 border-border relative overflow-hidden"
       >
-        <h3 className="font-display text-xl font-bold text-foreground mb-1">
-          📊 Potražnja po danima
-        </h3>
-        <p className="font-handwritten text-base text-primary mb-4">~ šta kupci traže ove nedelje ~</p>
+        {/* Animated doodle stickers */}
+        <div className="absolute inset-0 pointer-events-none">
+          <StarDoodle className="absolute top-2 right-4 scale-75 opacity-20" />
+          <CloudDoodle className="absolute -bottom-2 right-8 scale-50 opacity-15" />
+          <HeartDoodle className="absolute top-12 -left-1 scale-50 opacity-15" />
+        </div>
 
-        <div className="overflow-hidden rounded-xl border border-border">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-muted/50">
-                <th className="text-left font-body text-xs font-bold text-muted-foreground uppercase tracking-wider px-4 py-3">Dan</th>
-                <th className="text-right font-body text-xs font-bold text-muted-foreground uppercase tracking-wider px-4 py-3">Litri</th>
-                <th className="text-center font-body text-xs font-bold text-muted-foreground uppercase tracking-wider px-4 py-3">Trend</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.weekly_forecast.map((item, i) => {
-                const trend = getTrend(item.liters, maxLiters);
-                const isPeak = item.day.toLowerCase() === data.peak_day?.toLowerCase();
-                return (
-                  <motion.tr
-                    key={item.day}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    className={`border-t border-border ${isPeak ? "bg-primary/5" : ""}`}
-                  >
-                    <td className="px-4 py-3">
-                      <span className={`font-body text-sm ${isPeak ? "font-bold text-foreground" : "text-foreground"}`}>
-                        {DAY_LABELS[item.day.toLowerCase()] || item.day}
-                        {isPeak && <span className="ml-2 text-primary">★</span>}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-display text-base font-black text-foreground">{item.liters}L</span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-body font-bold ${trend.color}`}>
-                        {trend.label}
-                      </span>
-                    </td>
-                  </motion.tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="relative z-[1]">
+          <h3 className="font-display text-xl font-bold text-foreground mb-1">
+            📊 Potražnja po danima
+          </h3>
+          <p className="font-handwritten text-base text-primary mb-4">~ šta kupci traže ove nedelje ~</p>
+
+          <div className="overflow-hidden rounded-xl border border-border">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-muted/50">
+                  <th className="text-left font-body text-xs font-bold text-muted-foreground uppercase tracking-wider px-4 py-3">Dan</th>
+                  <th className="text-right font-body text-xs font-bold text-muted-foreground uppercase tracking-wider px-4 py-3">Litri</th>
+                  <th className="text-center font-body text-xs font-bold text-muted-foreground uppercase tracking-wider px-4 py-3">Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.weekly_forecast.map((item, i) => {
+                  const trend = getTrend(item.liters, maxLiters);
+                  const isPeak = item.day.toLowerCase() === data.peak_day?.toLowerCase();
+                  return (
+                    <motion.tr
+                      key={item.day}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className={`border-t border-border ${isPeak ? "bg-primary/5" : ""}`}
+                    >
+                      <td className="px-4 py-3">
+                        <span className={`font-body text-sm ${isPeak ? "font-bold text-foreground" : "text-foreground"}`}>
+                          {DAY_LABELS[item.day.toLowerCase()] || item.day}
+                          {isPeak && <span className="ml-2 text-primary">★</span>}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className="font-display text-base font-black text-foreground">{item.liters}L</span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-body font-bold ${trend.color}`}>
+                          {trend.label}
+                        </span>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </motion.div>
 
@@ -138,19 +148,27 @@ const FarmerDemandForecast = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="p-6 rounded-2xl bg-primary/10 border-2 border-primary/25"
+        className="p-6 rounded-2xl bg-primary/10 border-2 border-primary/25 relative overflow-hidden"
       >
-        <h3 className="font-display text-xl font-bold text-foreground mb-2">
-          ⚠️ Preporuka za pripremu
-        </h3>
-        <p className="font-body text-sm text-foreground leading-relaxed">
-          {data.farmer_message || "Pripremite dovoljne količine mleka za narednu nedelju."}
-        </p>
-        <div className="mt-4 p-3 rounded-xl bg-card/60 border border-primary/20 text-center">
-          <p className="font-body text-xs text-muted-foreground">Najtraženiji dan</p>
-          <p className="font-display text-2xl font-black text-primary uppercase tracking-wide mt-1">
-            {peakLabel}
+        {/* Animated doodle stickers */}
+        <div className="absolute inset-0 pointer-events-none">
+          <CrownDoodle className="absolute -top-2 right-6 scale-50 opacity-25" />
+          <StarDoodle className="absolute bottom-2 left-4 scale-75 opacity-20" />
+        </div>
+
+        <div className="relative z-[1]">
+          <h3 className="font-display text-xl font-bold text-foreground mb-2">
+            ⚠️ Preporuka za pripremu
+          </h3>
+          <p className="font-body text-sm text-foreground leading-relaxed">
+            {data.farmer_message || "Pripremite dovoljne količine mleka za narednu nedelju."}
           </p>
+          <div className="mt-4 p-3 rounded-xl bg-card/60 border border-primary/20 text-center">
+            <p className="font-body text-xs text-muted-foreground">Najtraženiji dan</p>
+            <p className="font-display text-2xl font-black text-primary uppercase tracking-wide mt-1">
+              {peakLabel}
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>
