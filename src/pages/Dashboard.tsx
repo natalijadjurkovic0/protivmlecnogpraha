@@ -12,6 +12,7 @@ import AddOnsSidebar from "@/components/dashboard/AddOnsSidebar";
 import CheckoutModal from "@/components/dashboard/CheckoutModal";
 import ManagePlanModal from "@/components/dashboard/ManagePlanModal";
 import SingleOrderSection from "@/components/dashboard/SingleOrderSection";
+import WeeklyRecommendation from "@/components/dashboard/WeeklyRecommendation";
 import type { Tables } from "@/integrations/supabase/types";
 import { StarDoodle } from "@/components/DoodleOverlays";
 import { DAY_SHORT_SR, DAY_LABELS_SR, formatDisplayDate } from "@/lib/dateHelpers";
