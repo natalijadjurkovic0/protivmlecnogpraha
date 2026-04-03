@@ -616,7 +616,7 @@ const Dashboard = () => {
 
             {/* Section C: Weekly Recommendation */}
             <div>
-              <p className="font-handwritten text-xl text-primary mb-4">~ preporuka ove nedelje ~</p>
+              <p className="font-handwritten text-xl text-primary mb-4">~ naruči na vreme ~</p>
               <WeeklyRecommendation />
             </div>
           </div>
