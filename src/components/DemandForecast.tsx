@@ -30,30 +30,16 @@ const DemandForecast = () => {
   useEffect(() => {
     const fetchAndPredict = async () => {
       try {
-        const [{ data: subs }, { data: ords }] = await Promise.all([
-          supabase.from("subscriptions").select("*").eq("status", "active"),
-          supabase.from("orders").select("*"),
-        ]);
+        const { data: fnData, error } = await supabase.functions.invoke("predict-demand");
 
-        const res = await fetch(
-          "https://mlecniput-1.onrender.com/api/predict-demand",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              subscriptions: subs || [],
-              orders: ords || [],
-            }),
-          }
-        );
+        if (error) {
+          console.error("Edge function error:", error);
+          return;
+        }
 
-        if (res.ok) {
-          const json = await res.json();
-          // Handle nested response (e.g. { prediction: { weekly_forecast, ... } })
-          const payload = json.prediction || json;
-          if (payload.weekly_forecast && Array.isArray(payload.weekly_forecast)) {
-            setData(payload);
-          }
+        const payload = fnData?.prediction || fnData;
+        if (payload?.weekly_forecast && Array.isArray(payload.weekly_forecast)) {
+          setData(payload);
         }
       } catch (e) {
         console.error("Demand prediction error:", e);
