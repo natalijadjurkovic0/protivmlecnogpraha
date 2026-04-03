@@ -13,7 +13,7 @@ const WindingRoad = () => {
   if (!isMounted) return null;
 
   return (
-    <div className="fixed left-4 md:left-10 top-0 h-screen z-30 pointer-events-none hidden lg:block">
+    <div className="fixed left-4 md:left-10 top-0 h-screen z-30 pointer-events-none hidden lg:block opacity-15">
       <svg
         width="60"
         height="100%"
