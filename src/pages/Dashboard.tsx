@@ -136,23 +136,24 @@ const Dashboard = () => {
   };
 
   const handleCheckoutConfirm = async (data: { address: string; phone: string; driverNote: string }) => {
-    if (!user || !selectedPlan) return;
-    const plan = plans.find((p) => p.type === selectedPlan);
-    if (!plan) return;
+    if (!user) return;
 
     setLoading(true);
     await saveProfile(data.address, data.phone);
 
-    if (checkoutMode === "change" && subscription) {
-      // Cancel old subscription
-      await supabase
-        .from("subscriptions")
-        .update({ status: "cancelled" })
-        .eq("id", subscription.id);
-    }
+    let shouldRefresh = false;
 
     if (checkoutMode === "single") {
-      // Create a single order
+      if (!singleOrderDate || singleOrderLiters <= 0) {
+        toast({
+          title: "Greška",
+          description: "Izaberi datum i količinu za jednokratnu porudžbinu.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.from("orders").insert({
         user_id: user.id,
         delivery_date: singleOrderDate,
@@ -162,14 +163,36 @@ const Dashboard = () => {
         delivery_address: data.address,
         driver_note: data.driverNote || null,
       });
+
       if (error) {
         toast({ title: "Greška", description: error.message, variant: "destructive" });
-      } else {
-        toast({ title: "Naručeno! 🚛", description: `${singleOrderLiters}L za ${singleOrderDate}` });
-        triggerSplash();
+        setLoading(false);
+        return;
       }
+
+      toast({ title: "Naručeno! 🚛", description: `${singleOrderLiters}L za ${singleOrderDate}` });
+      triggerSplash();
+      setSingleOrderDate("");
+      shouldRefresh = true;
     } else {
-      // Create subscription
+      if (!selectedPlan) {
+        setLoading(false);
+        return;
+      }
+
+      const plan = plans.find((p) => p.type === selectedPlan);
+      if (!plan) {
+        setLoading(false);
+        return;
+      }
+
+      if (checkoutMode === "change" && subscription) {
+        await supabase
+          .from("subscriptions")
+          .update({ status: "cancelled" })
+          .eq("id", subscription.id);
+      }
+
       const { data: sub, error } = await supabase
         .from("subscriptions")
         .insert({
@@ -185,18 +208,24 @@ const Dashboard = () => {
 
       if (error) {
         toast({ title: "Greška", description: error.message, variant: "destructive" });
-      } else {
-        setSubscription(sub);
-        toast({ title: "Uspeh! 🎉", description: `Plan "${plan.name}" je aktiviran.` });
-        triggerSplash();
-        setShowPlanSelector(false);
+        setLoading(false);
+        return;
       }
+
+      setSubscription(sub);
+      toast({ title: "Uspeh! 🎉", description: `Plan "${plan.name}" je aktiviran.` });
+      triggerSplash();
+      setShowPlanSelector(false);
+      shouldRefresh = true;
     }
 
-    setCheckoutOpen(false);
-    setSelectedPlan(null);
-    setSelectedDays([]);
-    await fetchData();
+    if (shouldRefresh) {
+      setCheckoutOpen(false);
+      setSelectedPlan(null);
+      setSelectedDays([]);
+      await fetchData();
+    }
+
     setLoading(false);
   };
 
