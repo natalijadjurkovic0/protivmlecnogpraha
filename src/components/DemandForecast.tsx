@@ -124,7 +124,6 @@ const DemandForecast = () => {
                         : "text-muted-foreground/60"
                     }`}
                   >
-                  >
                     {DAY_LABELS[item.day.toLowerCase()] || item.day}
                   </span>
                   <span className="font-data text-[10px] md:text-xs text-muted-foreground">
