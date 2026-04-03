@@ -4,6 +4,7 @@ import StorySection from "@/components/StorySection";
 import WindingRoad from "@/components/WindingRoad";
 import FloatingDoodles from "@/components/FloatingDoodles";
 import Footer from "@/components/Footer";
+import DemandForecast from "@/components/DemandForecast";
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <WindingRoad />
       <FloatingDoodles />
       <HeroSection />
+      <DemandForecast />
       <StorySection />
       <Footer />
     </div>
