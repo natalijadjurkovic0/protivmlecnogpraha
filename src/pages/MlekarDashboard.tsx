@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WindingRoad from "@/components/WindingRoad";
 import { StarDoodle } from "@/components/DoodleOverlays";
+import FarmerDemandForecast from "@/components/dashboard/FarmerDemandForecast";
 
 const DAYS = [
   { label: "Ponedeljak", value: "monday" },
@@ -227,6 +228,12 @@ const MlekarDashboard = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Demand Forecast Section */}
+        <div className="mt-8">
+          <p className="font-handwritten text-xl text-primary mb-4">~ predikcija potražnje za narednu nedelju ~</p>
+          <FarmerDemandForecast />
+        </div>
       </div>
 
       <Footer />
