@@ -120,9 +120,10 @@ const DemandForecast = () => {
                   <span
                     className={`mt-2 font-data text-xs md:text-sm font-semibold ${
                       isPeak
-                        ? "text-primary"
-                        : "text-muted-foreground"
+                        ? "text-primary/70"
+                        : "text-muted-foreground/60"
                     }`}
+                  >
                   >
                     {DAY_LABELS[item.day.toLowerCase()] || item.day}
                   </span>
