@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WindingRoad from "@/components/WindingRoad";
 import { StarDoodle } from "@/components/DoodleOverlays";
+import FarmerDemandForecast from "@/components/dashboard/FarmerDemandForecast";
 
 const DAYS = [
   { label: "Ponedeljak", value: "monday" },
