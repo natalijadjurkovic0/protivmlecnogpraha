@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
+const DAY_LABELS: Record<string, string> = {
+  monday: "Ponedeljak",
+  tuesday: "Utorak",
+  wednesday: "Sreda",
+  thursday: "Četvrtak",
+  friday: "Petak",
+  saturday: "Subota",
+  sunday: "Nedelja",
+};
+
 const DAY_SHORT: Record<string, string> = {
   monday: "Pon",
   tuesday: "Uto",
