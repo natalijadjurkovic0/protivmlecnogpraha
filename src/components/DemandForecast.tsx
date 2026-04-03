@@ -78,7 +78,7 @@ const DemandForecast = () => {
     );
   }
 
-  if (!data) return null;
+  if (!data || !Array.isArray(data.weekly_forecast) || data.weekly_forecast.length === 0) return null;
 
   const maxLiters = Math.max(...data.weekly_forecast.map((d) => d.liters), 1);
 
