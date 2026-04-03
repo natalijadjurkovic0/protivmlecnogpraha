@@ -106,7 +106,7 @@ const DemandForecast = () => {
                 >
                   <motion.div
                     className={`w-full max-w-[48px] rounded-t-lg ${
-                      isPeak ? "bg-primary" : "bg-secondary"
+                      isPeak ? "bg-primary/50" : "bg-muted-foreground/15"
                     }`}
                     initial={{ height: 0 }}
                     whileInView={{ height: `${pct}%` }}
@@ -120,8 +120,8 @@ const DemandForecast = () => {
                   <span
                     className={`mt-2 font-data text-xs md:text-sm font-semibold ${
                       isPeak
-                        ? "text-primary"
-                        : "text-muted-foreground"
+                        ? "text-primary/70"
+                        : "text-muted-foreground/60"
                     }`}
                   >
                     {DAY_LABELS[item.day.toLowerCase()] || item.day}
@@ -136,7 +136,7 @@ const DemandForecast = () => {
 
           {/* Peak badge */}
           <div className="mt-6 flex items-center justify-center gap-2">
-            <span className="inline-block w-3 h-3 rounded-sm bg-primary" />
+            <span className="inline-block w-3 h-3 rounded-sm bg-primary/50" />
             <span className="font-body text-sm text-muted-foreground">
               Najfrekventniji dan:{" "}
               <strong className="text-foreground">
