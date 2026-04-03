@@ -620,11 +620,6 @@ const Dashboard = () => {
             {/* Section B: Single Orders — always visible */}
             <SingleOrderSection onOrder={handleSingleOrder} loading={loading} />
 
-            {/* Section C: Weekly Recommendation */}
-            <div>
-              <p className="font-handwritten text-xl text-primary mb-4">~ naruči na vreme ~</p>
-              <WeeklyRecommendation />
-            </div>
           </div>
 
           {/* Sidebar */}
