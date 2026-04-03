@@ -560,13 +560,26 @@ const Dashboard = () => {
                                   </p>
                                 </div>
                               </div>
-                              <button
-                                onClick={() => handleCancelOrder(order.id)}
-                                className="w-7 h-7 flex items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                                title="Otkaži"
-                              >
-                                ✕
-                              </button>
+                              <div className="flex items-center gap-3">
+                                {(() => {
+                                  const price = (order.add_on_ids || []).reduce((sum, id) => {
+                                    const found = addOns.find((a) => a.id === id);
+                                    return sum + (found?.price_rsd || 0);
+                                  }, 0);
+                                  return price > 0 ? (
+                                    <span className="font-body text-sm font-bold text-foreground">
+                                      {price} RSD
+                                    </span>
+                                  ) : null;
+                                })()}
+                                <button
+                                  onClick={() => handleCancelOrder(order.id)}
+                                  className="w-7 h-7 flex items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                  title="Otkaži"
+                                >
+                                  ✕
+                                </button>
+                              </div>
                             </div>
                           );
                         })}
