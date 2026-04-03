@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
+const DAY_LABELS: Record<string, string> = {
+  monday: "Ponedeljak",
+  tuesday: "Utorak",
+  wednesday: "Sreda",
+  thursday: "Četvrtak",
+  friday: "Petak",
+  saturday: "Subota",
+  sunday: "Nedelja",
+};
+
 const DAY_SHORT: Record<string, string> = {
   monday: "Pon",
   tuesday: "Uto",
@@ -66,8 +76,10 @@ const WeeklyRecommendation = () => {
   }
 
   const forecast = data.weekly_forecast || [];
-  const message = data.customer_prediction || data.customer_message || "";
   const maxLiters = forecast.length > 0 ? Math.max(...forecast.map((f) => f.liters), 1) : 1;
+
+  const peakDayLabel = DAY_LABELS[data.peak_day.toLowerCase()] || data.peak_day;
+  const message = `📦 Potražnja u ${peakDayLabel.toLowerCase()} sledeće nedelje će biti najveća — poručite vaše zalihe na vreme!`;
 
   return (
     <motion.div
