@@ -7,6 +7,7 @@ interface SubscriptionStatusProps {
   deliveryDays: string[];
   onPause: () => void;
   onResume: () => void;
+  onManage: () => void;
   loading: boolean;
 }
 
@@ -40,6 +41,7 @@ const SubscriptionStatus = ({
   deliveryDays,
   onPause,
   onResume,
+  onManage,
   loading,
 }: SubscriptionStatusProps) => {
   return (
@@ -86,23 +88,41 @@ const SubscriptionStatus = ({
           </div>
         </div>
 
-        <div className="mt-6 relative z-20">
+        <div className="mt-6 relative z-20 flex gap-3">
           {status === "active" ? (
-            <button
-              onClick={onPause}
-              disabled={loading}
-              className="px-6 py-3 border-2 border-destructive text-destructive font-body font-bold text-sm rounded-xl hover:bg-destructive hover:text-destructive-foreground transition-all disabled:opacity-50"
-            >
-              {loading ? "..." : "Pauziraj pretplatu ⏸️"}
-            </button>
+            <>
+              <button
+                onClick={onPause}
+                disabled={loading}
+                className="px-5 py-2.5 border border-border text-muted-foreground font-body font-medium text-sm rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
+              >
+                {loading ? "..." : "Pauziraj ⏸️"}
+              </button>
+              <button
+                onClick={onManage}
+                disabled={loading}
+                className="px-5 py-2.5 border border-border text-muted-foreground font-body font-medium text-sm rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
+              >
+                ⚙️ Upravljaj
+              </button>
+            </>
           ) : status === "paused" ? (
-            <button
-              onClick={onResume}
-              disabled={loading}
-              className="px-6 py-3 bg-primary text-primary-foreground font-body font-bold text-sm rounded-xl hover:scale-105 transition-transform disabled:opacity-50"
-            >
-              {loading ? "..." : "Nastavi pretplatu ▶️"}
-            </button>
+            <>
+              <button
+                onClick={onResume}
+                disabled={loading}
+                className="px-5 py-2.5 border border-primary/30 text-primary font-body font-medium text-sm rounded-xl hover:bg-primary/10 transition-colors disabled:opacity-50"
+              >
+                {loading ? "..." : "Nastavi ▶️"}
+              </button>
+              <button
+                onClick={onManage}
+                disabled={loading}
+                className="px-5 py-2.5 border border-border text-muted-foreground font-body font-medium text-sm rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
+              >
+                ⚙️ Upravljaj
+              </button>
+            </>
           ) : null}
         </div>
       </div>

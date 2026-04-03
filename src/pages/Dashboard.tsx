@@ -12,13 +12,13 @@ import AddOnsSidebar from "@/components/dashboard/AddOnsSidebar";
 import CheckoutModal from "@/components/dashboard/CheckoutModal";
 import ManagePlanModal from "@/components/dashboard/ManagePlanModal";
 import SingleOrderSection from "@/components/dashboard/SingleOrderSection";
-import ProfileAddressCard from "@/components/dashboard/ProfileAddressCard";
 import type { Tables } from "@/integrations/supabase/types";
 import { StarDoodle } from "@/components/DoodleOverlays";
 import { DAY_SHORT_SR, DAY_LABELS_SR, formatDisplayDate } from "@/lib/dateHelpers";
 
 type Subscription = Tables<"subscriptions">;
 type Order = Tables<"orders">;
+type AddOn = Tables<"add_ons">;
 
 const MilkSplash = ({ show }: { show: boolean }) => (
   <AnimatePresence>
@@ -58,6 +58,8 @@ const Dashboard = () => {
 
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [addOns, setAddOns] = useState<AddOn[]>([]);
+  const [profileAddress, setProfileAddress] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -80,7 +82,7 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     if (!user) return;
-    const [subRes, ordRes] = await Promise.all([
+    const [subRes, ordRes, addOnRes, profRes] = await Promise.all([
       supabase
         .from("subscriptions")
         .select("*")
@@ -93,10 +95,18 @@ const Dashboard = () => {
         .eq("user_id", user.id)
         .order("delivery_date", { ascending: false })
         .limit(10),
+      supabase.from("add_ons").select("*"),
+      supabase
+        .from("profiles")
+        .select("address")
+        .eq("user_id", user.id)
+        .single(),
     ]);
     if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0]);
     else setSubscription(null);
     if (ordRes.data) setOrders(ordRes.data);
+    if (addOnRes.data) setAddOns(addOnRes.data);
+    if (profRes.data?.address) setProfileAddress(profRes.data.address);
     setFetching(false);
   };
 
@@ -237,6 +247,18 @@ const Dashboard = () => {
     setCheckoutOpen(true);
   };
 
+  // ---- Cancel a single order or add-on order ----
+  const handleCancelOrder = async (orderId: string) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: "cancelled" })
+      .eq("id", orderId);
+    if (!error) {
+      toast({ title: "Otkazano ✕", description: "Porudžbina je otkazana." });
+      await fetchData();
+    }
+  };
+
   // ---- Manage plan actions ----
   const handlePause = async () => {
     if (!subscription) return;
@@ -338,6 +360,23 @@ const Dashboard = () => {
     ? Math.ceil((nextDelivery.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
 
+  // Helper: get add-on names from IDs
+  const getAddOnNames = (ids: string[] | null) => {
+    if (!ids || ids.length === 0) return [];
+    return ids.map((id) => {
+      const found = addOns.find((a) => a.id === id);
+      return found?.product_name || "Dodatak";
+    });
+  };
+
+  // Split orders
+  const singleOrders = orders.filter((o) => !o.subscription_id && o.status === "scheduled");
+  const addOnOrders = orders.filter(
+    (o) => o.add_on_ids && o.add_on_ids.length > 0 && o.status === "scheduled"
+  );
+  // Deduplicate: some orders may be both single and add-on
+  const shownOrderIds = new Set<string>();
+
   return (
     <div className="relative min-h-screen bg-background">
       <Navbar />
@@ -345,7 +384,7 @@ const Dashboard = () => {
 
       <div className="container mx-auto px-6 pt-24 pb-16">
         {/* Header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-2">
           <div>
             <p className="font-handwritten text-xl text-primary">~ tvoj mlečni kutak ~</p>
             <h1 className="font-display text-3xl md:text-4xl font-black text-foreground">
@@ -360,6 +399,14 @@ const Dashboard = () => {
           </button>
         </div>
 
+        {/* Address bar - subtle */}
+        {profileAddress && (
+          <p className="font-body text-xs text-muted-foreground mb-8">
+            📍 {profileAddress}
+          </p>
+        )}
+        {!profileAddress && <div className="mb-8" />}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-8">
@@ -370,20 +417,11 @@ const Dashboard = () => {
                   status={subscription.status}
                   planName={activePlanDetails?.name || subscription.plan_type}
                   deliveryDays={subscription.delivery_days}
-                  onPause={() => setManagePlanOpen(true)}
-                  onResume={() => setManagePlanOpen(true)}
+                  onPause={handlePause}
+                  onResume={handleResume}
+                  onManage={() => setManagePlanOpen(true)}
                   loading={loading}
                 />
-
-                {/* Manage Plan button replacing simple pause/resume */}
-                <div className="flex justify-center -mt-4">
-                  <button
-                    onClick={() => setManagePlanOpen(true)}
-                    className="px-6 py-3 bg-foreground text-background font-body font-bold text-sm rounded-xl hover:scale-[1.02] transition-transform shadow-lg"
-                  >
-                    ⚙️ Upravljaj Pretplatom
-                  </button>
-                </div>
 
                 {/* Next Delivery */}
                 {nextDelivery && subscription.status === "active" && (
@@ -452,35 +490,86 @@ const Dashboard = () => {
                   </div>
 
                   {/* Single orders under subscription */}
-                  {orders.filter(o => !o.subscription_id).length > 0 && (
+                  {singleOrders.length > 0 && (
                     <div className="mt-6 pt-4 border-t border-border">
                       <p className="font-handwritten text-lg text-primary mb-3">~ jednokratne porudžbine ~</p>
                       <div className="space-y-3">
-                        {orders.filter(o => !o.subscription_id).map((order) => (
-                          <div
-                            key={order.id}
-                            className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="font-handwritten text-xl text-primary">
-                                {order.status === "delivered" ? "✓" : order.status === "scheduled" ? "📦" : "⏳"}
-                              </span>
-                              <div>
-                                <p className="font-body text-sm font-semibold text-foreground">
-                                  {formatDisplayDate(order.delivery_date, "kupac")}
-                                </p>
-                                <p className="font-body text-xs text-muted-foreground capitalize">
-                                  {order.status}
-                                </p>
+                        {singleOrders.map((order) => {
+                          shownOrderIds.add(order.id);
+                          return (
+                            <div
+                              key={order.id}
+                              className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="font-handwritten text-xl text-primary">📦</span>
+                                <div>
+                                  <p className="font-body text-sm font-semibold text-foreground">
+                                    {formatDisplayDate(order.delivery_date, "kupac")}
+                                  </p>
+                                  {order.items && Array.isArray(order.items) && (order.items as any[]).map((item: any, i: number) => (
+                                    item.liters && (
+                                      <span key={i} className="font-body text-xs text-muted-foreground">
+                                        {item.liters}L mleko
+                                      </span>
+                                    )
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                {order.total_rsd && (
+                                  <span className="font-body text-sm font-bold text-foreground">
+                                    {order.total_rsd} RSD
+                                  </span>
+                                )}
+                                <button
+                                  onClick={() => handleCancelOrder(order.id)}
+                                  className="w-7 h-7 flex items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                  title="Otkaži"
+                                >
+                                  ✕
+                                </button>
                               </div>
                             </div>
-                            {order.total_rsd && (
-                              <span className="font-body text-sm font-bold text-foreground">
-                                {order.total_rsd} RSD
-                              </span>
-                            )}
-                          </div>
-                        ))}
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Add-on orders under subscription */}
+                  {addOnOrders.filter((o) => !shownOrderIds.has(o.id) || (o.add_on_ids && o.add_on_ids.length > 0)).length > 0 && (
+                    <div className="mt-6 pt-4 border-t border-border">
+                      <p className="font-handwritten text-lg text-primary mb-3">~ domaći dodaci ~</p>
+                      <div className="space-y-3">
+                        {addOnOrders.map((order) => {
+                          const names = getAddOnNames(order.add_on_ids);
+                          return (
+                            <div
+                              key={`addon-${order.id}`}
+                              className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="font-handwritten text-xl text-primary">🫙</span>
+                                <div>
+                                  <p className="font-body text-sm font-semibold text-foreground">
+                                    {formatDisplayDate(order.delivery_date, "kupac")}
+                                  </p>
+                                  <p className="font-body text-xs text-muted-foreground">
+                                    {names.join(", ")}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => handleCancelOrder(order.id)}
+                                className="w-7 h-7 flex items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                title="Otkaži"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -514,7 +603,6 @@ const Dashboard = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <ProfileAddressCard />
             <AddOnsSidebar />
             <div className="p-6 rounded-2xl bg-card border-2 border-dashed border-primary/20 text-center">
               <StarDoodle className="mx-auto mb-2" />
