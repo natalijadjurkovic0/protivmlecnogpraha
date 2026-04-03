@@ -228,6 +228,12 @@ const MlekarDashboard = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Demand Forecast Section */}
+        <div className="mt-8">
+          <p className="font-handwritten text-xl text-primary mb-4">~ predikcija potražnje za narednu nedelju ~</p>
+          <FarmerDemandForecast />
+        </div>
       </div>
 
       <Footer />
