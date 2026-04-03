@@ -165,6 +165,12 @@ const MlekarDashboard = () => {
           </div>
         </motion.div>
 
+        {/* Demand Forecast Section - top */}
+        <div className="mb-8">
+          <p className="font-handwritten text-xl text-primary mb-4">~ predikcija potražnje za narednu nedelju ~</p>
+          <FarmerDemandForecast />
+        </div>
+
         {/* Daily Offer Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -229,11 +235,6 @@ const MlekarDashboard = () => {
           </div>
         </motion.div>
 
-        {/* Demand Forecast Section */}
-        <div className="mt-8">
-          <p className="font-handwritten text-xl text-primary mb-4">~ predikcija potražnje za narednu nedelju ~</p>
-          <FarmerDemandForecast />
-        </div>
       </div>
 
       <Footer />
