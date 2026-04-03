@@ -49,7 +49,11 @@ const DemandForecast = () => {
 
         if (res.ok) {
           const json = await res.json();
-          setData(json);
+          // Handle nested response (e.g. { prediction: { weekly_forecast, ... } })
+          const payload = json.prediction || json;
+          if (payload.weekly_forecast && Array.isArray(payload.weekly_forecast)) {
+            setData(payload);
+          }
         }
       } catch (e) {
         console.error("Demand prediction error:", e);
@@ -74,7 +78,7 @@ const DemandForecast = () => {
     );
   }
 
-  if (!data) return null;
+  if (!data || !Array.isArray(data.weekly_forecast) || data.weekly_forecast.length === 0) return null;
 
   const maxLiters = Math.max(...data.weekly_forecast.map((d) => d.liters), 1);
 
