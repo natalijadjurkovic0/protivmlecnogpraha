@@ -21,9 +21,9 @@ const Footer = () => {
           </div>
           <div>
             <h4 className="font-display text-lg font-bold mb-4">Kontakt</h4>
-            <p className="font-body text-sm text-background/70">[Email adresa]</p>
-            <p className="font-body text-sm text-background/70">[Telefon]</p>
-            <p className="font-body text-sm text-background/70">[Adresa]</p>
+            <p className="font-body text-sm text-background/70">sales@mlecniput.com</p>
+            <p className="font-body text-sm text-background/70">+381 69 150 4002</p>
+            <p className="font-body text-sm text-background/70">​</p>
           </div>
         </div>
         <div className="border-t border-background/20 mt-12 pt-8 text-center">
