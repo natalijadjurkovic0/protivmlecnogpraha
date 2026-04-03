@@ -137,7 +137,7 @@ const DemandForecast = () => {
 
           {/* Peak badge */}
           <div className="mt-6 flex items-center justify-center gap-2">
-            <span className="inline-block w-3 h-3 rounded-sm bg-primary" />
+            <span className="inline-block w-3 h-3 rounded-sm bg-primary/50" />
             <span className="font-body text-sm text-muted-foreground">
               Najfrekventniji dan:{" "}
               <strong className="text-foreground">
