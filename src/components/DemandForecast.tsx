@@ -106,7 +106,7 @@ const DemandForecast = () => {
                 >
                   <motion.div
                     className={`w-full max-w-[48px] rounded-t-lg ${
-                      isPeak ? "bg-primary" : "bg-secondary"
+                      isPeak ? "bg-primary/50" : "bg-muted-foreground/15"
                     }`}
                     initial={{ height: 0 }}
                     whileInView={{ height: `${pct}%` }}
