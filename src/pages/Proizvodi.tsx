@@ -6,7 +6,7 @@ import ScrollSection from "@/components/ScrollSection";
 import FloatingDoodles from "@/components/FloatingDoodles";
 import { StarDoodle, HeartDoodle, ScribbleCircle } from "@/components/DoodleOverlays";
 import milkImg from "@/assets/milk-pour.jpg";
-import farmerImg from "@/assets/farmer.jpg";
+import farmerImg from "@/assets/baka-krave-2.jpg";
 import heroCow from "@/assets/hero-cow.jpg";
 
 const plans = [
