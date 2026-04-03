@@ -421,6 +421,40 @@ const Dashboard = () => {
                       </span>
                     ))}
                   </div>
+
+                  {/* Single orders under subscription */}
+                  {orders.filter(o => !o.subscription_id).length > 0 && (
+                    <div className="mt-6 pt-4 border-t border-border">
+                      <p className="font-handwritten text-lg text-primary mb-3">~ jednokratne porudžbine ~</p>
+                      <div className="space-y-3">
+                        {orders.filter(o => !o.subscription_id).map((order) => (
+                          <div
+                            key={order.id}
+                            className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="font-handwritten text-xl text-primary">
+                                {order.status === "delivered" ? "✓" : order.status === "scheduled" ? "📦" : "⏳"}
+                              </span>
+                              <div>
+                                <p className="font-body text-sm font-semibold text-foreground">
+                                  {formatDisplayDate(order.delivery_date, "kupac")}
+                                </p>
+                                <p className="font-body text-xs text-muted-foreground capitalize">
+                                  {order.status}
+                                </p>
+                              </div>
+                            </div>
+                            {order.total_rsd && (
+                              <span className="font-body text-sm font-bold text-foreground">
+                                {order.total_rsd} RSD
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
@@ -447,46 +481,6 @@ const Dashboard = () => {
 
             {/* Section B: Single Orders — always visible */}
             <SingleOrderSection onOrder={handleSingleOrder} loading={loading} />
-
-            {/* Order History */}
-            <div className="p-6 rounded-2xl bg-card border-2 border-border">
-              <h3 className="font-display text-xl font-bold text-foreground mb-4">
-                Istorija dostava
-              </h3>
-              {orders.length === 0 ? (
-                <p className="font-body text-muted-foreground text-sm">
-                  Još nema dostava. Tvoja prva dostava je na putu! 🚛
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {orders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="font-handwritten text-xl text-primary">
-                          {order.status === "delivered" ? "✓" : order.status === "scheduled" ? "📦" : "⏳"}
-                        </span>
-                        <div>
-                          <p className="font-body text-sm font-semibold text-foreground">
-                            {formatDisplayDate(order.delivery_date, "kupac")}
-                          </p>
-                          <p className="font-body text-xs text-muted-foreground capitalize">
-                            {order.status}
-                          </p>
-                        </div>
-                      </div>
-                      {order.total_rsd && (
-                        <span className="font-body text-sm font-bold text-foreground">
-                          {order.total_rsd} RSD
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Sidebar */}

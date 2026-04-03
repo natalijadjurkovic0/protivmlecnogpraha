@@ -37,7 +37,24 @@ const AddOnsSidebar = () => {
   const handleAddToDelivery = async () => {
     if (!user || selected.length === 0) return;
 
-    // Find next scheduled order and add add-ons
+    // Check if user has an active subscription
+    const { data: subs } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .limit(1);
+
+    if (!subs || subs.length === 0) {
+      toast({
+        title: "Nema aktivne pretplate",
+        description: "Prvo izaberi plan pa ćeš moći da dodaješ dodatke.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Find next scheduled order, or create one if none exists
     const { data: orders } = await supabase
       .from("orders")
       .select("*")
@@ -53,16 +70,49 @@ const AddOnsSidebar = () => {
         .from("orders")
         .update({ add_on_ids: merged })
         .eq("id", orders[0].id);
-
-      toast({ title: "Dodato! 🎉", description: "Dodaci su dodati na sledeću dostavu." });
-      setSelected([]);
     } else {
-      toast({
-        title: "Nema zakazane dostave",
-        description: "Prvo izaberi plan pa ćeš moći da dodaješ dodatke.",
-        variant: "destructive",
+      // No scheduled order yet — create one for next delivery day
+      const sub = subs[0];
+      const dayMap: Record<string, number> = { monday: 1, wednesday: 3, saturday: 6 };
+      const today = new Date();
+      const todayDay = today.getDay();
+      const deliveryDays = sub.delivery_days
+        .map((d) => dayMap[d])
+        .filter(Boolean)
+        .sort((a, b) => a - b);
+
+      let nextDate = new Date(today);
+      if (deliveryDays.length > 0) {
+        let found = false;
+        for (const d of deliveryDays) {
+          const diff = d - todayDay;
+          if (diff > 0) {
+            nextDate.setDate(today.getDate() + diff);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const diff = 7 - todayDay + deliveryDays[0];
+          nextDate.setDate(today.getDate() + diff);
+        }
+      } else {
+        nextDate.setDate(today.getDate() + 1);
+      }
+
+      const dateStr = nextDate.toISOString().split("T")[0];
+      await supabase.from("orders").insert({
+        user_id: user.id,
+        subscription_id: sub.id,
+        delivery_date: dateStr,
+        items: [{ type: "add_ons_only" }],
+        add_on_ids: selected,
+        status: "scheduled",
       });
     }
+
+    toast({ title: "Dodato! 🎉", description: "Dodaci su dodati na sledeću dostavu." });
+    setSelected([]);
   };
 
   const totalPrice = addOns

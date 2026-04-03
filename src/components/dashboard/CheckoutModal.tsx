@@ -18,6 +18,14 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
   const [driverNote, setDriverNote] = useState("");
   const [prefilled, setPrefilled] = useState(false);
 
+  // Reset prefilled when modal closes so it re-fetches on next open
+  useEffect(() => {
+    if (!open) {
+      setPrefilled(false);
+      setDriverNote("");
+    }
+  }, [open]);
+
   useEffect(() => {
     if (!open || !user || prefilled) return;
     supabase
