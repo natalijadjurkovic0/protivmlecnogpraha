@@ -272,6 +272,11 @@ const Partner = () => {
                       </div>
                     </div>
                   </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-4 bg-primary text-primary-foreground font-body font-bold text-lg rounded-xl hover:scale-[1.02] transition-transform mt-4 shadow-lg disabled:opacity-50"
                   >
                     {loading ? "Šalje se..." : "Pošalji prijavu 🐄"}
                   </button>
