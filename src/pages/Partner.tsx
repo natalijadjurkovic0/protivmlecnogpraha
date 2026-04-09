@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { combineAddress } from "@/components/AddressFields";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +20,10 @@ const Partner = () => {
     bpg: "",
     jmbg: "",
     ime: "",
-    adresa: "",
+    ulica: "",
+    broj: "",
+    grad: "Beograd",
+    postanskiBroj: "",
     kapacitet: "",
     email: "",
     password: "",
