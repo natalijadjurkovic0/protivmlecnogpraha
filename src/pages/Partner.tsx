@@ -42,7 +42,7 @@ const Partner = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.bpg || !formData.jmbg || !formData.ime || !formData.adresa || !formData.kapacitet) {
+    if (!formData.bpg || !formData.jmbg || !formData.ime || !formData.ulica || !formData.broj || !formData.kapacitet) {
       toast({ title: "Greška", description: "Sva polja su obavezna.", variant: "destructive" });
       return;
     }
@@ -97,7 +97,7 @@ const Partner = () => {
       bpg: formData.bpg.trim(),
       jmbg: formData.jmbg.trim(),
       full_name: formData.ime.trim(),
-      address: formData.adresa.trim(),
+      address: combineAddress(formData.ulica.trim(), formData.broj.trim(), formData.grad.trim(), formData.postanskiBroj.trim()),
       capacity_liters_per_day: Number(formData.kapacitet),
       user_id: currentUserId || null,
       email: currentEmail || null,
