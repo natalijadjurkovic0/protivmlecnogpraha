@@ -231,7 +231,6 @@ const Partner = () => {
                     { label: "BPG", name: "bpg", type: "text", placeholder: "Broj poljoprivrednog gazdinstva" },
                     { label: "JMBG", name: "jmbg", type: "text", placeholder: "Jedinstveni matični broj" },
                     { label: "Ime i Prezime", name: "ime", type: "text", placeholder: "Vaše puno ime" },
-                    { label: "Adresa", name: "adresa", type: "text", placeholder: "Adresa farme" },
                     { label: "Kapacitet (litara/dan)", name: "kapacitet", type: "number", placeholder: "Dnevni kapacitet mleka" },
                   ].map((field) => (
                     <div key={field.name}>
@@ -247,10 +246,32 @@ const Partner = () => {
                     </div>
                   ))}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-4 bg-primary text-primary-foreground font-body font-bold text-lg rounded-xl hover:scale-[1.02] transition-transform mt-4 shadow-lg disabled:opacity-50"
+                  {/* Address fields */}
+                  <div>
+                    <label className="font-handwritten text-lg text-primary block mb-2">Adresa farme</label>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="col-span-2">
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Ulica</label>
+                          <input name="ulica" value={formData.ulica} onChange={handleChange} placeholder="Gramsijeva" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                        <div>
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Broj</label>
+                          <input name="broj" value={formData.broj} onChange={handleChange} placeholder="2" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Grad</label>
+                          <input name="grad" value={formData.grad} onChange={handleChange} placeholder="Beograd" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                        <div>
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Poštanski broj</label>
+                          <input name="postanskiBroj" value={formData.postanskiBroj} onChange={handleChange} placeholder="11000" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   >
                     {loading ? "Šalje se..." : "Pošalji prijavu 🐄"}
                   </button>
