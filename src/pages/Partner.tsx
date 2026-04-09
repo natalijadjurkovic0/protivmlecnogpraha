@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { combineAddress } from "@/components/AddressFields";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +20,10 @@ const Partner = () => {
     bpg: "",
     jmbg: "",
     ime: "",
-    adresa: "",
+    ulica: "",
+    broj: "",
+    grad: "Beograd",
+    postanskiBroj: "",
     kapacitet: "",
     email: "",
     password: "",
@@ -38,7 +42,7 @@ const Partner = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.bpg || !formData.jmbg || !formData.ime || !formData.adresa || !formData.kapacitet) {
+    if (!formData.bpg || !formData.jmbg || !formData.ime || !formData.ulica || !formData.broj || !formData.kapacitet) {
       toast({ title: "Greška", description: "Sva polja su obavezna.", variant: "destructive" });
       return;
     }
@@ -93,7 +97,7 @@ const Partner = () => {
       bpg: formData.bpg.trim(),
       jmbg: formData.jmbg.trim(),
       full_name: formData.ime.trim(),
-      address: formData.adresa.trim(),
+      address: combineAddress(formData.ulica.trim(), formData.broj.trim(), formData.grad.trim(), formData.postanskiBroj.trim()),
       capacity_liters_per_day: Number(formData.kapacitet),
       user_id: currentUserId || null,
       email: currentEmail || null,
@@ -227,7 +231,6 @@ const Partner = () => {
                     { label: "BPG", name: "bpg", type: "text", placeholder: "Broj poljoprivrednog gazdinstva" },
                     { label: "JMBG", name: "jmbg", type: "text", placeholder: "Jedinstveni matični broj" },
                     { label: "Ime i Prezime", name: "ime", type: "text", placeholder: "Vaše puno ime" },
-                    { label: "Adresa", name: "adresa", type: "text", placeholder: "Adresa farme" },
                     { label: "Kapacitet (litara/dan)", name: "kapacitet", type: "number", placeholder: "Dnevni kapacitet mleka" },
                   ].map((field) => (
                     <div key={field.name}>
@@ -242,6 +245,33 @@ const Partner = () => {
                       />
                     </div>
                   ))}
+
+                  {/* Address fields */}
+                  <div>
+                    <label className="font-handwritten text-lg text-primary block mb-2">Adresa farme</label>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="col-span-2">
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Ulica</label>
+                          <input name="ulica" value={formData.ulica} onChange={handleChange} placeholder="Gramsijeva" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                        <div>
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Broj</label>
+                          <input name="broj" value={formData.broj} onChange={handleChange} placeholder="2" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Grad</label>
+                          <input name="grad" value={formData.grad} onChange={handleChange} placeholder="Beograd" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                        <div>
+                          <label className="font-body text-xs text-warm-white/60 block mb-1">Poštanski broj</label>
+                          <input name="postanskiBroj" value={formData.postanskiBroj} onChange={handleChange} placeholder="11000" className="w-full px-4 py-3 rounded-xl bg-warm-white/10 border border-warm-white/20 text-warm-white placeholder:text-warm-white/40 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   <button
                     type="submit"

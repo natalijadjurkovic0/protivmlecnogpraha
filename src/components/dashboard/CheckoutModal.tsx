@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import AddressFields, { combineAddress, parseAddress } from "@/components/AddressFields";
 
 interface CheckoutModalProps {
   open: boolean;
@@ -13,7 +14,10 @@ interface CheckoutModalProps {
 
 const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }: CheckoutModalProps) => {
   const { user } = useAuth();
-  const [address, setAddress] = useState("");
+  const [street, setStreet] = useState("");
+  const [number, setNumber] = useState("");
+  const [city, setCity] = useState("Beograd");
+  const [postalCode, setPostalCode] = useState("");
   const [phone, setPhone] = useState("");
   const [driverNote, setDriverNote] = useState("");
   const [prefilled, setPrefilled] = useState(false);
@@ -33,18 +37,36 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
-        if (data?.address) setAddress(data.address);
+        if (data?.address) {
+          const parsed = parseAddress(data.address);
+          setStreet(parsed.street);
+          setNumber(parsed.number);
+          setCity(parsed.city);
+          setPostalCode(parsed.postalCode);
+        }
         if (data?.phone) setPhone(data.phone);
         setPrefilled(true);
       });
   }, [open, user, prefilled]);
 
+  const combinedAddress = combineAddress(street, number, city, postalCode);
+
   const handleSubmit = () => {
-    if (!address.trim() || !phone.trim()) return;
-    onConfirm({ address: address.trim(), phone: phone.trim(), driverNote: driverNote.trim() });
+    if (!street.trim() || !number.trim() || !city.trim() || !phone.trim()) return;
+    onConfirm({ address: combinedAddress, phone: phone.trim(), driverNote: driverNote.trim() });
   };
 
   if (!open) return null;
+
+  const inputCls = "w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground font-body text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all";
+  const labelCls = "font-body text-sm font-semibold text-foreground block mb-1";
+
+  const handleFieldChange = (field: "street" | "number" | "city" | "postalCode", value: string) => {
+    if (field === "street") setStreet(value);
+    else if (field === "number") setNumber(value);
+    else if (field === "city") setCity(value);
+    else setPostalCode(value);
+  };
 
   return (
     <motion.div
@@ -73,34 +95,28 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
         <p className="font-handwritten text-primary text-lg mb-6">~ gde da ti donesemo mleko? ~</p>
 
         <div className="space-y-4">
-          <div>
-            <label className="font-body text-sm font-semibold text-foreground block mb-1">
-              📍 Tačna Adresa Dostave *
-            </label>
-            <input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Ul. Mlečna 42, Beograd"
-              className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground font-body text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-            />
-          </div>
+          <AddressFields
+            street={street}
+            number={number}
+            city={city}
+            postalCode={postalCode}
+            onChange={handleFieldChange}
+            inputClassName={inputCls}
+            labelClassName={labelCls}
+          />
 
           <div>
-            <label className="font-body text-sm font-semibold text-foreground block mb-1">
-              📞 Broj Telefona *
-            </label>
+            <label className={labelCls}>📞 Broj Telefona *</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+381 6X XXX XXXX"
-              className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground font-body text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+              className={inputCls}
             />
           </div>
 
           <div>
-            <label className="font-body text-sm font-semibold text-foreground block mb-1">
-              📝 Napomena za vozača
-            </label>
+            <label className={labelCls}>📝 Napomena za vozača</label>
             <textarea
               value={driverNote}
               onChange={(e) => setDriverNote(e.target.value)}
@@ -120,7 +136,7 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!address.trim() || !phone.trim() || loading}
+            disabled={!street.trim() || !number.trim() || !city.trim() || !phone.trim() || loading}
             className="flex-1 py-3 bg-foreground text-background font-body font-bold text-sm rounded-xl hover:scale-[1.02] transition-transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Sačekaj..." : "Potvrdi ✓"}
