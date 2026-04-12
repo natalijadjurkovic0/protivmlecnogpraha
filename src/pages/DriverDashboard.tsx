@@ -74,6 +74,10 @@ const DriverDashboard = () => {
 
   const handleGenerateRoute = async () => {
     if (!user) return;
+    if (!startLocation.trim()) {
+      toast({ title: "Upozorenje", description: "Unesite početnu lokaciju pre generisanja rute.", variant: "destructive" });
+      return;
+    }
     setGenerating(true);
     setRoute([]);
     setCompletedStops(new Set());
