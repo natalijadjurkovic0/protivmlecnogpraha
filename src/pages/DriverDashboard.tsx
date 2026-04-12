@@ -37,6 +37,8 @@ const DriverDashboard = () => {
   const [route, setRoute] = useState<RouteStop[]>([]);
   const [completedStops, setCompletedStops] = useState<Set<number>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
+  const [startLocation, setStartLocation] = useState("");
+  const [departureTime, setDepartureTime] = useState("07:00");
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
