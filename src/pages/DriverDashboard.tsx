@@ -37,6 +37,8 @@ const DriverDashboard = () => {
   const [route, setRoute] = useState<RouteStop[]>([]);
   const [completedStops, setCompletedStops] = useState<Set<number>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
+  const [startLocation, setStartLocation] = useState("");
+  const [departureTime, setDepartureTime] = useState("07:00");
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -72,6 +74,10 @@ const DriverDashboard = () => {
 
   const handleGenerateRoute = async () => {
     if (!user) return;
+    if (!startLocation.trim()) {
+      toast({ title: "Upozorenje", description: "Unesite početnu lokaciju pre generisanja rute.", variant: "destructive" });
+      return;
+    }
     setGenerating(true);
     setRoute([]);
     setCompletedStops(new Set());
@@ -126,6 +132,8 @@ const DriverDashboard = () => {
       const payload = {
         driver_id: user.id,
         selected_date: selectedDateStr,
+        start_location: startLocation.trim(),
+        departure_time: departureTime,
         supplies: (supplies || []).map((s) => ({
           id: s.id,
           name: s.full_name,
@@ -234,6 +242,28 @@ const DriverDashboard = () => {
           <DayOffDoodle />
         ) : (
           <>
+            {/* Start location & departure time */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="font-body text-sm font-semibold text-foreground block mb-1">📍 Početna lokacija *</label>
+                <input
+                  value={startLocation}
+                  onChange={(e) => setStartLocation(e.target.value)}
+                  placeholder="Unesite adresu polazišta"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground font-body text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label className="font-body text-sm font-semibold text-foreground block mb-1">🕐 Vreme polaska</label>
+                <input
+                  type="time"
+                  value={departureTime}
+                  onChange={(e) => setDepartureTime(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground font-body text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                />
+              </div>
+            </div>
+
             <motion.button
               onClick={handleGenerateRoute}
               disabled={generating}
