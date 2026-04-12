@@ -242,6 +242,28 @@ const DriverDashboard = () => {
           <DayOffDoodle />
         ) : (
           <>
+            {/* Start location & departure time */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="font-body text-sm font-semibold text-foreground block mb-1">📍 Početna lokacija *</label>
+                <input
+                  value={startLocation}
+                  onChange={(e) => setStartLocation(e.target.value)}
+                  placeholder="Unesite adresu polazišta"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground font-body text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label className="font-body text-sm font-semibold text-foreground block mb-1">🕐 Vreme polaska</label>
+                <input
+                  type="time"
+                  value={departureTime}
+                  onChange={(e) => setDepartureTime(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground font-body text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                />
+              </div>
+            </div>
+
             <motion.button
               onClick={handleGenerateRoute}
               disabled={generating}
