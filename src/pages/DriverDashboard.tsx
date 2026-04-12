@@ -132,6 +132,8 @@ const DriverDashboard = () => {
       const payload = {
         driver_id: user.id,
         selected_date: selectedDateStr,
+        start_location: startLocation.trim(),
+        departure_time: departureTime,
         supplies: (supplies || []).map((s) => ({
           id: s.id,
           name: s.full_name,
