@@ -163,7 +163,7 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!street.trim() || !number.trim() || !city.trim() || !phone.trim() || loading}
+            disabled={!street.trim() || !number.trim() || !city.trim() || !phone.trim() || !timeWindowId || loading}
             className="flex-1 py-3 bg-foreground text-background font-body font-bold text-sm rounded-xl hover:scale-[1.02] transition-transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Sačekaj..." : "Potvrdi ✓"}
