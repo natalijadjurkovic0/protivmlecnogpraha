@@ -227,6 +227,62 @@ const Dashboard = () => {
         return;
       }
 
+      // Remember chosen time window per-subscription so future orders inherit it
+      if (sub?.id) {
+        try {
+          localStorage.setItem(
+            `mp_sub_window_${sub.id}`,
+            JSON.stringify({ start: data.timeWindowStart, end: data.timeWindowEnd })
+          );
+        } catch {}
+
+        // Create the first scheduled order so the chosen time window is also
+        // persisted in the orders table (for driver visibility).
+        const dayMap: Record<string, number> = { monday: 1, wednesday: 3, saturday: 6 };
+        const today = new Date();
+        const todayDay = today.getDay();
+        const days = (plan.type === "probaj" ? [] : selectedDays)
+          .map((d) => dayMap[d])
+          .filter(Boolean)
+          .sort((a, b) => a - b);
+        let firstDate: Date | null = null;
+        if (days.length > 0) {
+          for (const d of days) {
+            const diff = d - todayDay;
+            if (diff > 0) {
+              firstDate = new Date(today);
+              firstDate.setDate(today.getDate() + diff);
+              break;
+            }
+          }
+          if (!firstDate) {
+            firstDate = new Date(today);
+            firstDate.setDate(today.getDate() + (7 - todayDay + days[0]));
+          }
+        } else if (plan.type === "probaj") {
+          firstDate = new Date(today);
+          firstDate.setDate(today.getDate() + 1);
+        }
+
+        if (firstDate) {
+          const litersPerDelivery =
+            plan.type === "probaj"
+              ? plan.litersPerMonth
+              : Math.round((plan.litersPerMonth / 4 / Math.max(selectedDays.length, 1)) * 10) / 10;
+          await supabase.from("orders").insert({
+            user_id: user.id,
+            subscription_id: sub.id,
+            delivery_date: firstDate.toISOString().split("T")[0],
+            items: [{ type: "mleko", liters: litersPerDelivery }],
+            status: "scheduled",
+            delivery_address: data.address,
+            driver_note: data.driverNote || null,
+            time_window_start: data.timeWindowStart,
+            time_window_end: data.timeWindowEnd,
+          });
+        }
+      }
+
       setSubscription(sub);
       toast({ title: "Uspeh! 🎉", description: `Plan "${plan.name}" je aktiviran.` });
       triggerSplash();
