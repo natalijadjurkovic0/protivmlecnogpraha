@@ -9,7 +9,9 @@ import Footer from "@/components/Footer";
 import PlanSelector, { plans, type Plan } from "@/components/dashboard/PlanSelector";
 import SubscriptionStatus from "@/components/dashboard/SubscriptionStatus";
 import AddOnsSidebar from "@/components/dashboard/AddOnsSidebar";
-import CheckoutModal from "@/components/dashboard/CheckoutModal";
+import CheckoutModal, { type CheckoutResult } from "@/components/dashboard/CheckoutModal";
+import OrderProgressBar from "@/components/dashboard/OrderProgressBar";
+import { findWindowByTimes } from "@/components/dashboard/TimeWindowSelector";
 import ManagePlanModal from "@/components/dashboard/ManagePlanModal";
 import SingleOrderSection from "@/components/dashboard/SingleOrderSection";
 import WeeklyRecommendation from "@/components/dashboard/WeeklyRecommendation";
@@ -146,7 +148,7 @@ const Dashboard = () => {
     setCheckoutOpen(true);
   };
 
-  const handleCheckoutConfirm = async (data: { address: string; phone: string; driverNote: string }) => {
+  const handleCheckoutConfirm = async (data: CheckoutResult) => {
     if (!user) return;
 
     setLoading(true);
@@ -173,6 +175,8 @@ const Dashboard = () => {
         status: "scheduled",
         delivery_address: data.address,
         driver_note: data.driverNote || null,
+        time_window_start: data.timeWindowStart,
+        time_window_end: data.timeWindowEnd,
       });
 
       if (error) {
@@ -221,6 +225,62 @@ const Dashboard = () => {
         toast({ title: "Greška", description: error.message, variant: "destructive" });
         setLoading(false);
         return;
+      }
+
+      // Remember chosen time window per-subscription so future orders inherit it
+      if (sub?.id) {
+        try {
+          localStorage.setItem(
+            `mp_sub_window_${sub.id}`,
+            JSON.stringify({ start: data.timeWindowStart, end: data.timeWindowEnd })
+          );
+        } catch {}
+
+        // Create the first scheduled order so the chosen time window is also
+        // persisted in the orders table (for driver visibility).
+        const dayMap: Record<string, number> = { monday: 1, wednesday: 3, saturday: 6 };
+        const today = new Date();
+        const todayDay = today.getDay();
+        const days = (plan.type === "probaj" ? [] : selectedDays)
+          .map((d) => dayMap[d])
+          .filter(Boolean)
+          .sort((a, b) => a - b);
+        let firstDate: Date | null = null;
+        if (days.length > 0) {
+          for (const d of days) {
+            const diff = d - todayDay;
+            if (diff > 0) {
+              firstDate = new Date(today);
+              firstDate.setDate(today.getDate() + diff);
+              break;
+            }
+          }
+          if (!firstDate) {
+            firstDate = new Date(today);
+            firstDate.setDate(today.getDate() + (7 - todayDay + days[0]));
+          }
+        } else if (plan.type === "probaj") {
+          firstDate = new Date(today);
+          firstDate.setDate(today.getDate() + 1);
+        }
+
+        if (firstDate) {
+          const litersPerDelivery =
+            plan.type === "probaj"
+              ? plan.litersPerMonth
+              : Math.round((plan.litersPerMonth / 4 / Math.max(selectedDays.length, 1)) * 10) / 10;
+          await supabase.from("orders").insert({
+            user_id: user.id,
+            subscription_id: sub.id,
+            delivery_date: firstDate.toISOString().split("T")[0],
+            items: [{ type: "mleko", liters: litersPerDelivery }],
+            status: "scheduled",
+            delivery_address: data.address,
+            driver_note: data.driverNote || null,
+            time_window_start: data.timeWindowStart,
+            time_window_end: data.timeWindowEnd,
+          });
+        }
       }
 
       setSubscription(sub);
@@ -378,6 +438,20 @@ const Dashboard = () => {
   // Deduplicate: some orders may be both single and add-on
   const shownOrderIds = new Set<string>();
 
+  // Next upcoming order across all orders (for status progress bar)
+  const todayIso = new Date().toISOString().split("T")[0];
+  const upcoming = orders
+    .filter(
+      (o) =>
+        o.delivery_date >= todayIso &&
+        !["delivered", "cancelled", "canceled"].includes(o.status.toLowerCase())
+    )
+    .sort((a, b) => a.delivery_date.localeCompare(b.delivery_date));
+  const nextScheduledOrder = upcoming[0] || null;
+  const nextOrderWindow = nextScheduledOrder
+    ? findWindowByTimes(nextScheduledOrder.time_window_start, nextScheduledOrder.time_window_end)
+    : null;
+
   return (
     <div className="relative min-h-screen bg-background">
       <Navbar />
@@ -457,7 +531,24 @@ const Dashboard = () => {
                         </p>
                       </div>
                     </div>
+                    {nextOrderWindow ? (
+                      <p className="font-body text-sm text-foreground mt-3">
+                        🕒 Vreme dostave:{" "}
+                        <span className="font-bold">
+                          {nextOrderWindow.emoji} {nextOrderWindow.label} ({nextOrderWindow.start}–{nextOrderWindow.end})
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="font-body text-xs text-muted-foreground mt-3">
+                        🕒 Vreme nije izabrano
+                      </p>
+                    )}
                   </motion.div>
+                )}
+
+                {/* Order status progress */}
+                {nextScheduledOrder && (
+                  <OrderProgressBar status={nextScheduledOrder.status} />
                 )}
 
                 {/* Subscription Tracker */}
@@ -615,6 +706,11 @@ const Dashboard = () => {
                   ← Nazad na pregled
                 </button>
               </div>
+            )}
+
+            {/* Show next order status when there's no active subscription */}
+            {!hasActiveSub && nextScheduledOrder && (
+              <OrderProgressBar status={nextScheduledOrder.status} />
             )}
 
             {/* Section B: Single Orders — always visible */}
