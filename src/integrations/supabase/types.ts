@@ -145,6 +145,8 @@ export type Database = {
           items: Json
           status: string
           subscription_id: string | null
+          time_window_end: string | null
+          time_window_start: string | null
           total_rsd: number | null
           updated_at: string
           user_id: string
@@ -159,6 +161,8 @@ export type Database = {
           items?: Json
           status?: string
           subscription_id?: string | null
+          time_window_end?: string | null
+          time_window_start?: string | null
           total_rsd?: number | null
           updated_at?: string
           user_id: string
@@ -173,6 +177,8 @@ export type Database = {
           items?: Json
           status?: string
           subscription_id?: string | null
+          time_window_end?: string | null
+          time_window_start?: string | null
           total_rsd?: number | null
           updated_at?: string
           user_id?: string
@@ -195,8 +201,11 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string
+          geocoded_at: string | null
           id: string
           jmbg: string
+          latitude: number | null
+          longitude: number | null
           status: string
           updated_at: string
           user_id: string | null
@@ -208,8 +217,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name: string
+          geocoded_at?: string | null
           id?: string
           jmbg: string
+          latitude?: number | null
+          longitude?: number | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -221,8 +233,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string
+          geocoded_at?: string | null
           id?: string
           jmbg?: string
+          latitude?: number | null
+          longitude?: number | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -234,7 +249,12 @@ export type Database = {
           address: string | null
           created_at: string
           display_name: string | null
+          driver_start_latitude: number | null
+          driver_start_longitude: number | null
+          geocoded_at: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           phone: string | null
           updated_at: string
           user_id: string
@@ -243,7 +263,12 @@ export type Database = {
           address?: string | null
           created_at?: string
           display_name?: string | null
+          driver_start_latitude?: number | null
+          driver_start_longitude?: number | null
+          geocoded_at?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -252,7 +277,12 @@ export type Database = {
           address?: string | null
           created_at?: string
           display_name?: string | null
+          driver_start_latitude?: number | null
+          driver_start_longitude?: number | null
+          geocoded_at?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           updated_at?: string
           user_id?: string
