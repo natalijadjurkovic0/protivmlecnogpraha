@@ -136,8 +136,11 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
             />
           </div>
 
-          <div>
-            <label className={labelCls}>📝 Napomena za vozača</label>
+          <TimeWindowSelector
+            value={timeWindowId}
+            onChange={setTimeWindowId}
+            labelClassName={labelCls}
+          />
             <textarea
               value={driverNote}
               onChange={(e) => setDriverNote(e.target.value)}
