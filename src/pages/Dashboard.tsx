@@ -531,7 +531,24 @@ const Dashboard = () => {
                         </p>
                       </div>
                     </div>
+                    {nextOrderWindow ? (
+                      <p className="font-body text-sm text-foreground mt-3">
+                        🕒 Vreme dostave:{" "}
+                        <span className="font-bold">
+                          {nextOrderWindow.emoji} {nextOrderWindow.label} ({nextOrderWindow.start}–{nextOrderWindow.end})
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="font-body text-xs text-muted-foreground mt-3">
+                        🕒 Vreme nije izabrano
+                      </p>
+                    )}
                   </motion.div>
+                )}
+
+                {/* Order status progress */}
+                {nextScheduledOrder && (
+                  <OrderProgressBar status={nextScheduledOrder.status} />
                 )}
 
                 {/* Subscription Tracker */}
