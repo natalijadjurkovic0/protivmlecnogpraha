@@ -708,6 +708,11 @@ const Dashboard = () => {
               </div>
             )}
 
+            {/* Show next order status when there's no active subscription */}
+            {!hasActiveSub && nextScheduledOrder && (
+              <OrderProgressBar status={nextScheduledOrder.status} />
+            )}
+
             {/* Section B: Single Orders — always visible */}
             <SingleOrderSection onOrder={handleSingleOrder} loading={loading} />
 
