@@ -3,11 +3,21 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AddressFields, { combineAddress, parseAddress } from "@/components/AddressFields";
+import TimeWindowSelector, { TIME_WINDOWS } from "@/components/dashboard/TimeWindowSelector";
+
+export interface CheckoutResult {
+  address: string;
+  phone: string;
+  driverNote: string;
+  timeWindowStart: string;
+  timeWindowEnd: string;
+  timeWindowId: string;
+}
 
 interface CheckoutModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { address: string; phone: string; driverNote: string }) => void;
+  onConfirm: (data: CheckoutResult) => void;
   loading: boolean;
   title?: string;
 }
@@ -20,12 +30,14 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
   const [postalCode, setPostalCode] = useState("");
   const [phone, setPhone] = useState("");
   const [driverNote, setDriverNote] = useState("");
+  const [timeWindowId, setTimeWindowId] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setPrefilled(false);
       setDriverNote("");
+      setTimeWindowId(null);
     }
   }, [open]);
 
