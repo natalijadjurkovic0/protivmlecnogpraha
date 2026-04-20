@@ -438,6 +438,20 @@ const Dashboard = () => {
   // Deduplicate: some orders may be both single and add-on
   const shownOrderIds = new Set<string>();
 
+  // Next upcoming order across all orders (for status progress bar)
+  const todayIso = new Date().toISOString().split("T")[0];
+  const upcoming = orders
+    .filter(
+      (o) =>
+        o.delivery_date >= todayIso &&
+        !["delivered", "cancelled", "canceled"].includes(o.status.toLowerCase())
+    )
+    .sort((a, b) => a.delivery_date.localeCompare(b.delivery_date));
+  const nextScheduledOrder = upcoming[0] || null;
+  const nextOrderWindow = nextScheduledOrder
+    ? findWindowByTimes(nextScheduledOrder.time_window_start, nextScheduledOrder.time_window_end)
+    : null;
+
   return (
     <div className="relative min-h-screen bg-background">
       <Navbar />
