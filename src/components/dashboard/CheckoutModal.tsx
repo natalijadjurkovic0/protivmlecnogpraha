@@ -64,8 +64,17 @@ const CheckoutModal = ({ open, onClose, onConfirm, loading, title = "Dostava" }:
   const combinedAddress = combineAddress(street, number, city, postalCode);
 
   const handleSubmit = () => {
-    if (!street.trim() || !number.trim() || !city.trim() || !phone.trim()) return;
-    onConfirm({ address: combinedAddress, phone: phone.trim(), driverNote: driverNote.trim() });
+    if (!street.trim() || !number.trim() || !city.trim() || !phone.trim() || !timeWindowId) return;
+    const win = TIME_WINDOWS.find((w) => w.id === timeWindowId);
+    if (!win) return;
+    onConfirm({
+      address: combinedAddress,
+      phone: phone.trim(),
+      driverNote: driverNote.trim(),
+      timeWindowStart: win.start,
+      timeWindowEnd: win.end,
+      timeWindowId: win.id,
+    });
   };
 
   if (!open) return null;
