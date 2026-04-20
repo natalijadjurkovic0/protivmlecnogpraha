@@ -148,7 +148,7 @@ const Dashboard = () => {
     setCheckoutOpen(true);
   };
 
-  const handleCheckoutConfirm = async (data: { address: string; phone: string; driverNote: string }) => {
+  const handleCheckoutConfirm = async (data: CheckoutResult) => {
     if (!user) return;
 
     setLoading(true);
@@ -175,6 +175,8 @@ const Dashboard = () => {
         status: "scheduled",
         delivery_address: data.address,
         driver_note: data.driverNote || null,
+        time_window_start: data.timeWindowStart,
+        time_window_end: data.timeWindowEnd,
       });
 
       if (error) {
